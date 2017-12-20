@@ -13,7 +13,8 @@ c_vector *vector = c_vector_create(sizeof(size_t), 1);
 Вставка в произвольную позицию (в начало) неинициализированного элемента:
 
 ```c++
-c_vector_insert(vector, 0);
+const size_t index = 0;
+c_vector_insert(vector, index);
 ```
 
 Безопасное обращение к элементу с заданным индексом:
