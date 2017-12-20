@@ -95,7 +95,25 @@ cout << "Time: " << t2 - t1 << " ms." << endl;
 
 ~ 1867 мс., ~ 764.5 МБ
 
-**c_vector** ~ 2056 мс., ~ 764 МБ
+**c_vector:**
+
+```c++
+const size_t COUNT = 1E8;
+size_t t1, t2;
+c_vector *vector = c_vector_create(sizeof(size_t), 1);
+	
+c_vector_push_back(vector);
+t1 = clock();
+for (size_t i = 0; i < COUNT; ++i)
+{
+	c_vector_push_back(vector);
+	*( (size_t*) c_vector_back(vector) ) = i;
+}
+t2 = clock();
+printf("Time: %Iu ms.\n", t2 - t1);
+```
+
+~ 2056 мс., ~ 764 МБ
 
 ### Удаление произвольного элемента типа size_t, 10^5 удалений:
 
