@@ -51,7 +51,7 @@ void print_func(void *const _data)
 {
   pritnf("vector[%Iu] = %Iu\n", i++, *( (size_t*) _data));
 }
-c_vector_for_each(vector, print_and_inc_func);
+c_vector_for_each(vector, print_func);
 ```
 
 Удаление вектора:
