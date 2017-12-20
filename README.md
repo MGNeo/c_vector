@@ -60,7 +60,7 @@ c_vector_for_each(vector, print_func);
 c_vector_delete(vector, NULL);
 ```
 
-## Сравнение прозводительности **c_vector** и **std::vector** (**Visual Studio 2013**).
+## Сравнение прозводительности **c_vector** и **std::vector** (**Visual Studio 2013**)
 
 ### Конфигурация системы и железа:
 
