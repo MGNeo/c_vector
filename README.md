@@ -219,7 +219,7 @@ vector.push_back(0);
 t1 = clock();
 for (size_t i = 0; i < COUNT; ++i)
 {
-	size_t index = rand() % vector.size();
+	const size_t index = rand() % vector.size();
 	vector.insert(vector.begin() + index, i);
 }
 t2 = clock();
@@ -235,7 +235,7 @@ c_vector_push_back(vector);
 t1 = clock();
 for (size_t i = 0; i < COUNT; ++i)
 {
-	size_t index = rand() % vector->size;
+	const size_t index = rand() % vector->size;
 	c_vector_insert(vector, index);
 	*( (size_t*) c_vector_at(vector, index) ) = i;
 }
