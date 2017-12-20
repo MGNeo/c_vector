@@ -30,6 +30,35 @@ const size_t index = 0;
 *( (size_t*) c_vector_unsafe_at(vector, index) ) = 100500;
 ```
 
+Клонирование вектора:
+
+```c++
+c_vector *clone = c_vector_clone(vector);
+```
+Удаление элемента с заданным индексом:
+
+```c++
+const size_t index = 0;
+c_vector_erase(vector, index, NULL);
+```
+
+Печать всех элементов вектора:
+
+```c++
+size_t i = 0;
+void print_func(void *const _data)
+{
+  pritnf("vector[%Iu] = %Iu\n", i++, *( (size_t*) _data));
+}
+c_vector_for_each(vector, print_and_inc_func);
+```
+
+Удаление вектора:
+
+```c++
+c_vector_delete(vector, NULL);
+```
+
 ## Сравнение прозводительности **c_vector** и **std::vector** (**Visual Studio 2013**).
 
 ## Конфигурация системы и железа:
