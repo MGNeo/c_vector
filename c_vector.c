@@ -297,7 +297,7 @@ ptrdiff_t c_vector_clear(c_vector *const _vector, void (*const _del_func(void *c
     {
         for (size_t i = 0; i < _vector->size; ++i)
         {
-            _del_func( _vector->data + i * _vector->size_of_element );
+            _del_func((uint8_t*)_vector->data + i * _vector->size_of_element);
         }
     }
 
@@ -417,7 +417,7 @@ ptrdiff_t c_vector_set_capacity(c_vector *const _vector, const size_t _capacity,
         {
             for (size_t i = _capacity; i < _vector->size; ++i)
             {
-                _del_func(_vector->data + i * _vector->size_of_element);
+                _del_func((uint8_t*)_vector->data + i * _vector->size_of_element);
             }
         }
 
