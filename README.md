@@ -74,7 +74,26 @@ c_vector_delete(vector, NULL);
 
 ### Вставка в конец вектора 10^8 элементов типа size_t, начальная емкость вектора 1:
 
-**std::vector** ~ 1867 мс., ~ 764.5 МБ
+**std::vector:** 
+
+```c++
+const size_t COUNT = 1E8;
+size_t t1, t2;
+
+vector<size_t> vector;
+vector.reserve(1);
+
+vector.push_back(0);
+t1 = clock();
+for (size_t i = 0; i < COUNT; ++i)
+{
+  vector.push_back(i);
+}
+t2 = clock();
+cout << "Time: " << t2 - t1 << " ms." << endl;
+```
+
+~ 1867 мс., ~ 764.5 МБ
 
 **c_vector** ~ 2056 мс., ~ 764 МБ
 
