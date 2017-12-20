@@ -447,7 +447,7 @@ ptrdiff_t c_vector_for_each(c_vector *const _vector, void (*const _func(void *co
 }
 
 // Небезопасное обращение к элементу с заданным индексом.
-// Никакие проверки не выполняются.void *c_vector_unsafe_at(c_vector *const _vector, const size_t _index);
+// Никакие проверки не выполняются.
 // Возвращает указатель на элемент.
 void *c_vector_unsafe_at(c_vector *const _vector, const size_t _index)
 {
