@@ -430,3 +430,18 @@ ptrdiff_t c_vector_set_capacity(c_vector *const _vector, const size_t _capacity,
     return 1;
 }
 
+// Проходит по всему размеру вектора и выполняет над данными каждого элемента действие _func.
+// В случае успеха возвращает > 0, иначе < 0.
+ptrdiff_t c_vector_for_each(c_vector *const _vector, void (*const _func(void *const _data)))
+{
+    if (_vector == NULL) return -1;
+    if (_func == NULL) return -2;
+    if (_vector->size == 0) return -3;
+
+    for (size_t i = 0; i < _vector->size; ++i)
+    {
+        _func((uint8_t*)_vector->data + i * _vector->size_of_element);
+    }
+
+    return 1;
+}
