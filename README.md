@@ -211,6 +211,20 @@ printf("Time: %Iu ms. sum: \n", t2 - t1, sum);
 ~ 82 мс.
 
 ### Вставка в произвольную позицию 10^5 элементов типа size_t, начальная емкость вектора 1:
-**std::vector** ~ 2417 мс.
+**std::vector:**
+
+```c++
+vector.push_back(0);
+t1 = clock();
+for (size_t i = 0; i < COUNT; ++i)
+{
+	size_t index = rand() % vector.size();
+	vector.insert(vector.begin() + index, i);
+}
+t2 = clock();
+cout << "Time: " << t2 - t1 << " ms." << endl;
+```
+
+~ 2417 мс.
 
 **c_vector** ~ 2420 мс.
