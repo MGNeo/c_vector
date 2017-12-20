@@ -115,9 +115,35 @@ printf("Time: %Iu ms.\n", t2 - t1);
 
 ### Удаление произвольного элемента типа size_t, 10^5 удалений:
 
-**std::vector** ~ 1285 мс.
+**std::vector:**
 
-**c_vector** ~ 1270 мс.
+```c++
+t1 = clock();
+for (size_t i = 0; i < COUNT - 1; ++i)
+{
+	const size_t index = rand() % vector.size();
+	vector.erase(vector.begin() + index);
+}
+t2 = clock();
+cout << "Time: " << t2 - t1 << " ms." << endl;
+```
+
+~ 1285 мс.
+
+**c_vector:** 
+
+```c++
+t1 = clock();
+for (size_t i = 0; i < COUNT - 1; ++i)
+{
+	const size_t index = rand() % vector->size;
+	c_vector_erase(vector, index, NULL);
+}
+t2 = clock();
+printf("Time: %Iu ms.\n", t2 - t1);
+```
+
+~ 1270 мс.
 
 ### Сложение всех элементов типа size_t вектора с использованием .at(), размер вектора 10^8:
 
