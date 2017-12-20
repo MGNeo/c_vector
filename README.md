@@ -99,6 +99,7 @@ cout << "Time: " << t2 - t1 << " ms." << endl;
 ```c++
 const size_t COUNT = 1E8;
 size_t t1, t2;
+
 c_vector *vector = c_vector_create(sizeof(size_t), 1);
 	
 t1 = clock();
@@ -227,4 +228,19 @@ cout << "Time: " << t2 - t1 << " ms." << endl;
 
 ~ 2417 мс.
 
-**c_vector** ~ 2420 мс.
+**c_vector:** 
+
+```c++
+c_vector_push_back(vector);
+t1 = clock();
+for (size_t i = 0; i < COUNT; ++i)
+{
+	size_t index = rand() % vector->size;
+	c_vector_insert(vector, index);
+	*( (size_t*) c_vector_at(vector, index) ) = i;
+}
+t2 = clock();
+printf("Time: %Iu ms.\n", t2 - t1);
+```
+
+~ 2420 мс.
