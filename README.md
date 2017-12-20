@@ -7,7 +7,27 @@
 Создание вектора, размер элемента которого = sizeof(size_t), емкость = 1:
 
 ```c++
-c_vector *vector = c_vector_create(sizeof(size_t)
+c_vector *vector = c_vector_create(sizeof(size_t), 1);
+```
+
+Вставка в произвольную позицию (в начало) неинициализированного элемента:
+
+```c++
+c_vector_insert(vector, 0);
+```
+
+Безопасное обращение к элементу с заданным индексом:
+
+```c++
+const size_t index = 0;
+*( (size_t*) c_vector_at(vector, index) ) = 100500;
+```
+
+Небезопасное обращение к элементу с заданным индексом:
+
+```c++
+const size_t index = 0;
+*( (size_t*) c_vector_unsafe_at(vector, index) ) = 100500;
 ```
 
 ## Сравнение прозводительности **c_vector** и **std::vector** (**Visual Studio 2013**).
