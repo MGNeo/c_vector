@@ -147,15 +147,68 @@ printf("Time: %Iu ms.\n", t2 - t1);
 
 ### Сложение всех элементов типа size_t вектора с использованием .at(), размер вектора 10^8:
 
-**std::vector** ~ 101 мс.
+**std::vector:** 
 
-**c_vector** ~ 173 мс.
+```c++
+size_t sum = 0;
+t1 = clock();
+for (size_t i = 0; i < COUNT; ++i)
+{
+	sum += vector.at(i);
+}
+t2 = clock();
+cout << "Time: " << t2 - t1 << " ms. sum: " << sum << endl;
+```
 
-### Сложение всех элементов вектора с использованием цикла:
+~ 128 мс.
 
-**std::vector (range-based)** ~ 105 мс.
+**c_vector:**
 
-**c_vector (for_each)** ~ 82 мс.
+```c++
+size_t sum = 0;
+t1 = clock();
+for (size_t i = 0; i < COUNT; ++i)
+{
+	sum += *( (size_t*) c_vector_at(vector, i) );
+}
+t2 = clock();
+printf("Time: %Iu ms. sum: \n", t2 - t1, sum);
+```
+
+~ 173 мс.
+
+### Сложение всех элементов вектора с использованием цикла, размер вектора 10^8:
+
+**std::vector (range-based):**
+
+```c++
+size_t sum = 0;
+t1 = clock();
+for (auto &e : vector)
+{
+	sum += e;
+}
+t2 = clock();
+cout << "Time: " << t2 - t1 << " ms. sum: " << sum << endl;
+``` 
+
+~ 105 мс.
+
+**c_vector (for_each):**
+
+```c++
+size_t sum = 0;
+void sum_func(void *_data)
+{
+	sum += *((size_t*)_data);
+}
+t1 = clock();
+c_vector_for_each(vector, sum_func);
+t2 = clock();
+printf("Time: %Iu ms. sum: \n", t2 - t1, sum);
+```
+
+~ 82 мс.
 
 ### Вставка в произвольную позицию 10^5 элементов типа size_t, начальная емкость вектора 1:
 **std::vector** ~ 2417 мс.
