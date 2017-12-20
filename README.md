@@ -83,7 +83,6 @@ size_t t1, t2;
 vector<size_t> vector;
 vector.reserve(1);
 
-vector.push_back(0);
 t1 = clock();
 for (size_t i = 0; i < COUNT; ++i)
 {
@@ -102,7 +101,6 @@ const size_t COUNT = 1E8;
 size_t t1, t2;
 c_vector *vector = c_vector_create(sizeof(size_t), 1);
 	
-c_vector_push_back(vector);
 t1 = clock();
 for (size_t i = 0; i < COUNT; ++i)
 {
