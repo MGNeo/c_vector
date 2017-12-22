@@ -27,9 +27,9 @@ ptrdiff_t c_vector_pop_back(c_vector *const _vector, void (*const _del_func(void
 ptrdiff_t c_vector_push_front(c_vector *const _vector);
 ptrdiff_t c_vector_pop_front(c_vector *const _vector, void (*const _del_func(void *const _data)));
 
-void *c_vector_at(c_vector *const _vector, const size_t _index);
-void *c_vector_back(c_vector *const _vector);
-void *c_vector_front(c_vector *const _vector);
+void *c_vector_at(const c_vector *const _vector, const size_t _index);
+void *c_vector_back(const c_vector *const _vector);
+void *c_vector_front(const c_vector *const _vector);
 
 void *c_vector_unsafe_at(c_vector *const _vector, const size_t _index);
 
