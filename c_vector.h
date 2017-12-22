@@ -14,24 +14,24 @@ typedef struct s_c_vector
     void *data;
 } c_vector;
 
-ptrdiff_t c_vector_create(const size_t _size_of_element, const size_t _capacity);
+c_vector *c_vector_create(const size_t _size_of_element, const size_t _capacity);
 
 ptrdiff_t c_vector_delete(c_vector *const _vector, void (*const _del_func(void *const _data)));
 
-ptrdiff_t c_vector_insert(c_vector *const _vector, const size_t _index);
+void *c_vector_insert(c_vector *const _vector, const size_t _index);
 ptrdiff_t c_vector_erase(c_vector *const _vector, const size_t _index, void (*_del_func(void *const _data)));
 
-ptrdiff_t c_vector_push_back(c_vector *const _vector);
+void *c_vector_push_back(c_vector *const _vector);
 ptrdiff_t c_vector_pop_back(c_vector *const _vector, void (*const _del_func(void *const _data)));
 
-ptrdiff_t c_vector_push_front(c_vector *const _vector);
+void *c_vector_push_front(c_vector *const _vector);
 ptrdiff_t c_vector_pop_front(c_vector *const _vector, void (*const _del_func(void *const _data)));
 
 void *c_vector_at(const c_vector *const _vector, const size_t _index);
 void *c_vector_back(const c_vector *const _vector);
 void *c_vector_front(const c_vector *const _vector);
 
-void *c_vector_unsafe_at(c_vector *const _vector, const size_t _index);
+void *c_vector_unsafe_at(const c_vector *const _vector, const size_t _index);
 
 ptrdiff_t c_vector_compress(c_vector *const _vector);
 ptrdiff_t c_vector_set_capacity(c_vector *const _vector, const size_t _capacity, void (*const _del_func(void *const _data)));
