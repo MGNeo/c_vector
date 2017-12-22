@@ -237,13 +237,12 @@ cout << "Time: " << t2 - t1 << " ms." << endl;
 **c_vector:** 
 
 ```c++
-c_vector_push_back(vector);
+*( (size_t*) c_vector_push_back(vector) ) = 0;
 t1 = clock();
 for (size_t i = 0; i < COUNT; ++i)
 {
 	const size_t index = rand() % vector->size;
-	c_vector_insert(vector, index);
-	*( (size_t*) c_vector_at(vector, index) ) = i;
+	*( (size_t*) c_vector_insert(vector, index) ) = i;
 }
 t2 = clock();
 printf("Time: %Iu ms.\n", t2 - t1);
