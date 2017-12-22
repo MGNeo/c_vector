@@ -51,7 +51,6 @@ ptrdiff_t c_vector_delete(c_vector *const _vector, void (*const _del_func(void *
         free(_vector->data);
     }
     free(_vector);
-
     return 1;
 }
 
@@ -66,7 +65,6 @@ void *c_vector_push_back(c_vector *const _vector)
         const size_t new_capacity = _vector->capacity * 1.5 + 1;
         // Проверка сразу двух возможных вариантов переполнения.
         if (new_capacity * _vector->size_of_element < _vector->capacity * _vector->size_of_element) return NULL;
-
         void *new_data = realloc(_vector->data, new_capacity * _vector->size_of_element);
         if (new_data == NULL) return NULL;
         _vector->data = new_data;
@@ -121,7 +119,6 @@ void *c_vector_insert(c_vector *const _vector, const size_t _index)
         _vector->data = new_data;
         _vector->capacity = new_capacity;
         ++_vector->size;
-
         return (uint8_t*)_vector->data + _index * _vector->size_of_element;
     } else {
         if (_vector->size > 0)
@@ -144,7 +141,6 @@ void *c_vector_insert(c_vector *const _vector, const size_t _index)
             }
         }
         ++_vector->size;
-
         return (uint8_t*)_vector->data + _index * _vector->size_of_element;
     }
 }
@@ -232,7 +228,6 @@ ptrdiff_t c_vector_pop_front(c_vector *const _vector, void (*const _del_func(voi
 {
     if (_vector == NULL) return -1;
     if (_vector->size == 0) return -2;
-
     if (_del_func != NULL)
     {
         _del_func( _vector->data );
@@ -333,11 +328,9 @@ ptrdiff_t c_vector_compress(c_vector *const _vector)
     {
         void *new_data = realloc(_vector->data, new_capacity * _vector->size_of_element);
         if (new_data == NULL) return -2;
-
         _vector->data = new_data;
     } else {
         free(_vector->data);
-
         _vector->data = NULL;
     }
     _vector->capacity = new_capacity;
