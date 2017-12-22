@@ -145,7 +145,7 @@ ptrdiff_t c_vector_insert(c_vector *const _vector, const size_t _index)
 
 // Возвращает указатель на последний элемент вектора.
 // В случае ошибки возвращает NULL.
-void *c_vector_back(c_vector *const _vector)
+void *c_vector_back(const c_vector *const _vector)
 {
     if (_vector == NULL) return NULL;
 
@@ -156,7 +156,7 @@ void *c_vector_back(c_vector *const _vector)
 
 // Возвращает указатель на первый элемент вектора.
 // В случае ошибки возвращает NULL.
-void *c_vector_front(c_vector *const _vector)
+void *c_vector_front(const c_vector *const _vector)
 {
     if (_vector == NULL) return NULL;
     if (_vector->size == 0) return NULL;
@@ -166,7 +166,7 @@ void *c_vector_front(c_vector *const _vector)
 
 // Возвращает указатель на элемент с заданным индексом.
 // В случае ошибки возвращает NULL.
-void *c_vector_at(c_vector *const _vector, const size_t _index)
+void *c_vector_at(const c_vector *const _vector, const size_t _index)
 {
     if (_vector == NULL) return NULL;
     if (_index >= _vector->size) return NULL;
@@ -329,42 +329,6 @@ void *c_vector_clone(const c_vector *const _vector)
     new_vector->data = new_data;
 
     return new_vector;
-}
-
-// Возвращает указатель на данные вектора.
-// В случае ошибки возвращает NULL.
-void *c_vector_get_data(c_vector *const _vector)
-{
-    if (_vector == NULL) return NULL;
-
-    return _vector->data;
-}
-
-// Возвращает размер элемента вектора.
-// В случае ошибки возвращает 0.
-size_t c_vector_get_size_of_element(const c_vector *const _vector)
-{
-    if (_vector == NULL) return 0;
-
-    return _vector->size_of_element;
-}
-
-// Возвращает емкость вектора (в элементах, штук).
-// В случае ошибки возвращает 0.
-size_t c_vector_get_capacity(const c_vector *const _vector)
-{
-    if (_vector == NULL) return 0;
-
-    return _vector->capacity;
-}
-
-// Возвращает размер вектора (в элементах, штук).
-// В случае ошибки возвращает 0.
-size_t c_vector_get_size(const c_vector *const _vector)
-{
-    if (_vector == NULL) return 0;
-
-    return _vector->size;
 }
 
 // Ужимает вектор, перераспределяя память.
