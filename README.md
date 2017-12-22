@@ -10,11 +10,18 @@
 c_vector *vector = c_vector_create(sizeof(size_t), 1);
 ```
 
-Вставка в произвольную позицию (в начало) неинициализированного элемента:
+Вставка в произвольную позицию без инициализации:
 
 ```c++
 const size_t index = 0;
 c_vector_insert(vector, index);
+```
+
+Вставка в произвольную позициюс инициализацией:
+
+```c++
+const size_t index = 0;
+*( (size_t*) c_vector_insert(vector, index) ) = 100500;
 ```
 
 Безопасное обращение к элементу с заданным индексом:
@@ -105,14 +112,13 @@ c_vector *vector = c_vector_create(sizeof(size_t), 1);
 t1 = clock();
 for (size_t i = 0; i < COUNT; ++i)
 {
-	c_vector_push_back(vector);
-	*( (size_t*) c_vector_back(vector) ) = i;
+	*( (size_t*) c_vector_push_back(vector) ) = i;
 }
 t2 = clock();
 printf("Time: %Iu ms.\n", t2 - t1);
 ```
 
-~ 2056 мс., ~ 764 МБ
+~ 1858 мс., ~ 764 МБ
 
 ### Удаление произвольного элемента вектора (типа size_t), 10^5 удалений:
 
@@ -144,7 +150,7 @@ t2 = clock();
 printf("Time: %Iu ms.\n", t2 - t1);
 ```
 
-~ 1270 мс.
+~ 1260 мс.
 
 ### Сложение всех элементов вектора (типа size_t) с использованием .at(), размер вектора 10^8:
 
@@ -243,4 +249,4 @@ t2 = clock();
 printf("Time: %Iu ms.\n", t2 - t1);
 ```
 
-~ 2420 мс.
+~ 2395 мс.
