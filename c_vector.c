@@ -302,7 +302,7 @@ ptrdiff_t c_vector_erase(c_vector *const _vector, const size_t _index, void (*_d
         } else {
             if (_index == (_vector->size - 1))
             {
-                // Вырезание сконца.
+                // Вырезание с конца.
             } else {
                 // Вырезание из середины.
                 memmove((uint8_t*)_vector->data + _index * _vector->size_of_element,
@@ -382,6 +382,7 @@ ptrdiff_t c_vector_compress(c_vector *const _vector)
         _vector->data = new_data;
     } else {
         free(_vector->data);
+
         _vector->data = NULL;
     }
     _vector->capacity = new_capacity;
@@ -396,73 +397,90 @@ ptrdiff_t c_vector_set_capacity(c_vector *const _vector, const size_t _capacity,
 {
     if (_vector == NULL) return -1;
 
-    // Новая емкость равна текущей.
     if (_capacity == _vector->capacity) return 1;
 
-    // Новая емкость больше текущей.
     if (_capacity > _vector->capacity)
     {
+        // Проверка переполнения.
+        if (_capacity * _vector->size_of_element < _vector->capacity * _vector->size_of_element)
+        {
+            return -2;
+        }
+
         void *new_data = malloc(_capacity * _vector->size_of_element);
-        if (new_data == NULL) return -2;
+        if (new_data == NULL) return -3;
 
         if (_vector->size > 0)
         {
             memcpy(new_data, _vector->data, _vector->size * _vector->size_of_element);
         }
+
         if (_vector->capacity > 0)
         {
             free(_vector->data);
         }
+
         _vector->data = new_data;
         _vector->capacity = _capacity;
-        return 1;
-    }
 
-    // Новая емкость меньше текущей.
-    if (_capacity < _vector->capacity)
-    {
-        if (_capacity < _vector->size)
-        {
+        return 2;
 
-        }
-    }
-
-
-
-
-
-    if (_capacity > _vector->size)
-    {
-        void *new_data = malloc(_capacity * _vector->size_of_element);
-        if (new_data == NULL) return -3;
-
-        // Размер так же может быть больше 0.
-
-        memcpy(new_data, _vector->data, _vector->size * _vector->size_of_element);
-
-        free(_vector->data);
-        _vector->data = new_data;
     } else {
-        void *new_data = malloc(_capacity * _vector->size_of_element);
-        if (new_data == NULL) return -4;
 
-        memcpy(new_data, _vector->data, _capacity);
-
-        if (_del_func != NULL)
+        // Новая емкость равна 0.
+        if (_capacity == 0)
         {
-            for (size_t i = _capacity; i < _vector->size; ++i)
+            if (_vector->size > 0)
             {
-                _del_func((uint8_t*)_vector->data + i * _vector->size_of_element);
+                if (_del_func != NULL)
+                {
+                    for (size_t i = 0; i < _vector->size; ++i)
+                    {
+                        _del_func((uint8_t*)_vector->data + i * _vector->size_of_element);
+                    }
+                }
             }
+
+            if (_vector->capacity > 0)
+            {
+                free(_vector->data);
+            }
+
+            _vector->size = 0;
+            _vector->capacity = 0;
+            _vector->data = NULL;
+
+            return 3;
+
+        } else {
+            // Новая емкость больше нуля, но меньше старой емкости.
+
+            void *new_data = malloc(_capacity * _vector->size_of_element);
+            if (new_data == NULL) return -4;
+
+            memcpy(new_data, _vector->data, _capacity * _vector->size_of_element);
+
+            // Если новая емкость еще и меньше размера.
+            if (_capacity < _vector->size)
+            {
+                if (_del_func != NULL)
+                {
+                    for (size_t i = _capacity; i < _vector->size; ++i)
+                    {
+                        _del_func((uint8_t*)_vector->data + i * _vector->size_of_element);
+                    }
+                }
+                _vector->size = _capacity;
+            }
+
+            free(_vector->data);
+
+            _vector->data = new_data;
+            _vector->capacity = _capacity;
+
+            return 4;
         }
-
-        free(_vector->data);
-        _vector->data = new_data;
-        _vector->size = _capacity;
     }
-
-    _vector->capacity = _capacity;
-    return 1;
 }
 
 // Проходит по всему размеру вектора и выполняет над данными каждого элемента действие _func.
