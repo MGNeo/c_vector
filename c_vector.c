@@ -6,12 +6,9 @@
 c_vector *c_vector_create(const size_t _size_of_element, const size_t _capacity)
 {
     if (_size_of_element == 0) return NULL;
-
     c_vector *new_vector = (c_vector*)malloc(sizeof(c_vector));
     if (new_vector == NULL) return NULL;
-
     void *new_data = NULL;
-
     if (_capacity > 0)
     {
         const size_t data_size = _size_of_element * _capacity;
@@ -20,7 +17,6 @@ c_vector *c_vector_create(const size_t _size_of_element, const size_t _capacity)
             free(new_vector);
             return NULL;
         }
-
         new_data = malloc(data_size);
         if (new_data == NULL)
         {
@@ -28,12 +24,10 @@ c_vector *c_vector_create(const size_t _size_of_element, const size_t _capacity)
             return NULL;
         }
     }
-
     new_vector->size = 0;
     new_vector->capacity = _capacity;
     new_vector->size_of_element = _size_of_element;
     new_vector->data = new_data;
-
     return new_vector;
 }
 
@@ -42,7 +36,6 @@ c_vector *c_vector_create(const size_t _size_of_element, const size_t _capacity)
 ptrdiff_t c_vector_delete(c_vector *const _vector, void (*const _del_func(void *const _data)))
 {
     if (_vector == NULL) return -1;
-
     if (_vector->size > 0)
     {
         if (_del_func != NULL)
@@ -53,7 +46,6 @@ ptrdiff_t c_vector_delete(c_vector *const _vector, void (*const _del_func(void *
             }
         }
     }
-
     if (_vector->capacity > 0)
     {
         free(_vector->data);
@@ -69,7 +61,6 @@ ptrdiff_t c_vector_delete(c_vector *const _vector, void (*const _del_func(void *
 void *c_vector_push_back(c_vector *const _vector)
 {
     if (_vector == NULL) return NULL;
-
     if (_vector->size == _vector->capacity)
     {
         const size_t new_capacity = _vector->capacity * 1.5 + 1;
@@ -78,12 +69,10 @@ void *c_vector_push_back(c_vector *const _vector)
 
         void *new_data = realloc(_vector->data, new_capacity * _vector->size_of_element);
         if (new_data == NULL) return NULL;
-
         _vector->data = new_data;
         _vector->capacity = new_capacity;
     }
     ++_vector->size;
-
     return (uint8_t*)_vector->data + (_vector->size - 1) * _vector->size_of_element;
 }
 
@@ -94,16 +83,13 @@ void *c_vector_insert(c_vector *const _vector, const size_t _index)
 {
     if (_vector == NULL) return NULL;
     if (_index > _vector->size) return NULL;
-
     if (_vector->size == _vector->capacity)
     {
         const size_t new_capacity = _vector->capacity * 1.5 + 1;
         // Проверка сразу двух возможных вариантов переполнения.
         if (new_capacity * _vector->size_of_element < _vector->capacity * _vector->size_of_element) return -3;
-
         void *new_data = malloc(new_capacity * _vector->size_of_element);
         if (new_data == NULL) return NULL;
-
         if (_vector->size > 0)
         {
             if (_index == 0)
@@ -168,9 +154,7 @@ void *c_vector_insert(c_vector *const _vector, const size_t _index)
 void *c_vector_back(const c_vector *const _vector)
 {
     if (_vector == NULL) return NULL;
-
     if (_vector->size == 0) return NULL;
-
     return (uint8_t*)_vector->data + (_vector->size - 1) * _vector->size_of_element;
 }
 
@@ -180,7 +164,6 @@ void *c_vector_front(const c_vector *const _vector)
 {
     if (_vector == NULL) return NULL;
     if (_vector->size == 0) return NULL;
-
     return _vector->data;
 }
 
@@ -190,7 +173,6 @@ void *c_vector_at(const c_vector *const _vector, const size_t _index)
 {
     if (_vector == NULL) return NULL;
     if (_index >= _vector->size) return NULL;
-
     return (uint8_t*)_vector->data + _index * _vector->size_of_element;
 }
 
@@ -200,16 +182,13 @@ void *c_vector_at(const c_vector *const _vector, const size_t _index)
 void *c_vector_push_front(c_vector *const _vector)
 {
     if (_vector == NULL) return NULL;
-
     if (_vector->size == _vector->capacity)
     {
         const size_t new_capacity = _vector->capacity * 1.5 + 1;
         // Проверка сразу двух возможных вариантов переполнения.
         if (new_capacity * _vector->size_of_element < _vector->capacity * _vector->size_of_element) return NULL;
-
         void *new_data = malloc(new_capacity * _vector->size_of_element);
         if (new_data == NULL) return NULL;
-
         if (_vector->size > 0)
         {
             memcpy((uint8_t*)new_data + _vector->size_of_element,
@@ -217,12 +196,9 @@ void *c_vector_push_front(c_vector *const _vector)
                    _vector->size * _vector->size_of_element);
             free(_vector->data);
         }
-
         _vector->data = new_data;
         _vector->capacity = new_capacity;
-
         ++_vector->size;
-
         return (uint8_t*)_vector->data;
     } else {
         if (_vector->size > 0)
@@ -231,9 +207,7 @@ void *c_vector_push_front(c_vector *const _vector)
                     _vector->data,
                     _vector->size * _vector->size_of_element);
         }
-
         ++_vector->size;
-
         return (uint8_t*)_vector->data;
     }
 }
@@ -244,14 +218,11 @@ ptrdiff_t c_vector_pop_back(c_vector *const _vector, void (*const _del_func(void
 {
     if (_vector == NULL) return -1;
     if (_vector->size == 0) return -2;
-
     if (_del_func != NULL)
     {
         _del_func((uint8_t*)_vector->data + (_vector->size - 1) * _vector->size_of_element);
     }
-
     --_vector->size;
-
     return 1;
 }
 
@@ -266,16 +237,13 @@ ptrdiff_t c_vector_pop_front(c_vector *const _vector, void (*const _del_func(voi
     {
         _del_func( _vector->data );
     }
-
     if (_vector->size > 1)
     {
         memmove(_vector->data,
                 (uint8_t*)_vector->data + _vector->size_of_element,
                 (_vector->size - 1) * _vector->size_of_element);
     }
-
     --_vector->size;
-
     return 1;
 }
 
@@ -285,12 +253,10 @@ ptrdiff_t c_vector_erase(c_vector *const _vector, const size_t _index, void (*_d
 {
     if (_vector == NULL) return -1;
     if (_index >= _vector->size) return -2;
-
     if (_del_func != NULL)
     {
         _del_func( (uint8_t*)_vector->data + _index * _vector->size_of_element );
     }
-
     if (_vector->size > 1)
     {
         if (_index == 0)
@@ -311,9 +277,7 @@ ptrdiff_t c_vector_erase(c_vector *const _vector, const size_t _index, void (*_d
             }
         }
     }
-
     --_vector->size;
-
     return 1;
 }
 
@@ -323,7 +287,6 @@ ptrdiff_t c_vector_erase(c_vector *const _vector, const size_t _index, void (*_d
 ptrdiff_t c_vector_clear(c_vector *const _vector, void (*const _del_func(void *const _data)))
 {
     if (_vector == NULL) return -1;
-
     if (_del_func != NULL)
     {
         for (size_t i = 0; i < _vector->size; ++i)
@@ -331,9 +294,7 @@ ptrdiff_t c_vector_clear(c_vector *const _vector, void (*const _del_func(void *c
             _del_func((uint8_t*)_vector->data + i * _vector->size_of_element);
         }
     }
-
     _vector->size = 0;
-
     return 1;
 }
 
@@ -342,17 +303,14 @@ ptrdiff_t c_vector_clear(c_vector *const _vector, void (*const _del_func(void *c
 void *c_vector_clone(const c_vector *const _vector)
 {
     if (_vector == NULL) return NULL;
-
     c_vector *new_vector = (c_vector*)malloc(sizeof(c_vector));
     if (new_vector == NULL) return NULL;
-
     void *new_data = malloc(_vector->capacity * _vector->size_of_element);
     if (new_data == NULL)
     {
         free(new_vector);
         return NULL;
     }
-
     new_vector->capacity = _vector->capacity;
     new_vector->size = _vector->size;
     new_vector->size_of_element = _vector->size_of_element;
@@ -361,7 +319,6 @@ void *c_vector_clone(const c_vector *const _vector)
         memcpy(new_data, _vector->data, _vector->size * _vector->size_of_element);
     }
     new_vector->data = new_data;
-
     return new_vector;
 }
 
@@ -371,9 +328,7 @@ void *c_vector_clone(const c_vector *const _vector)
 ptrdiff_t c_vector_compress(c_vector *const _vector)
 {
     if (_vector == NULL) return -1;
-
     size_t new_capacity = _vector->size;
-
     if (new_capacity > 0)
     {
         void *new_data = realloc(_vector->data, new_capacity * _vector->size_of_element);
@@ -386,7 +341,6 @@ ptrdiff_t c_vector_compress(c_vector *const _vector)
         _vector->data = NULL;
     }
     _vector->capacity = new_capacity;
-
     return 1;
 }
 
@@ -396,9 +350,7 @@ ptrdiff_t c_vector_compress(c_vector *const _vector)
 ptrdiff_t c_vector_set_capacity(c_vector *const _vector, const size_t _capacity, void (*const _del_func(void *const _data)))
 {
     if (_vector == NULL) return -1;
-
     if (_capacity == _vector->capacity) return 1;
-
     if (_capacity > _vector->capacity)
     {
         // Проверка переполнения.
@@ -406,27 +358,20 @@ ptrdiff_t c_vector_set_capacity(c_vector *const _vector, const size_t _capacity,
         {
             return -2;
         }
-
         void *new_data = malloc(_capacity * _vector->size_of_element);
         if (new_data == NULL) return -3;
-
         if (_vector->size > 0)
         {
             memcpy(new_data, _vector->data, _vector->size * _vector->size_of_element);
         }
-
         if (_vector->capacity > 0)
         {
             free(_vector->data);
         }
-
         _vector->data = new_data;
         _vector->capacity = _capacity;
-
         return 2;
-
     } else {
-
         // Новая емкость равна 0.
         if (_capacity == 0)
         {
@@ -440,26 +385,19 @@ ptrdiff_t c_vector_set_capacity(c_vector *const _vector, const size_t _capacity,
                     }
                 }
             }
-
             if (_vector->capacity > 0)
             {
                 free(_vector->data);
             }
-
             _vector->size = 0;
             _vector->capacity = 0;
             _vector->data = NULL;
-
             return 3;
-
         } else {
             // Новая емкость больше нуля, но меньше старой емкости.
-
             void *new_data = malloc(_capacity * _vector->size_of_element);
             if (new_data == NULL) return -4;
-
             memcpy(new_data, _vector->data, _capacity * _vector->size_of_element);
-
             // Если новая емкость еще и меньше размера.
             if (_capacity < _vector->size)
             {
@@ -472,12 +410,9 @@ ptrdiff_t c_vector_set_capacity(c_vector *const _vector, const size_t _capacity,
                 }
                 _vector->size = _capacity;
             }
-
             free(_vector->data);
-
             _vector->data = new_data;
             _vector->capacity = _capacity;
-
             return 4;
         }
     }
@@ -490,12 +425,10 @@ ptrdiff_t c_vector_for_each(c_vector *const _vector, void (*const _func(void *co
     if (_vector == NULL) return -1;
     if (_func == NULL) return -2;
     if (_vector->size == 0) return -3;
-
     for (size_t i = 0; i < _vector->size; ++i)
     {
         _func((uint8_t*)_vector->data + i * _vector->size_of_element);
     }
-
     return 1;
 }
 
