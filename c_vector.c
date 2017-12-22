@@ -1,6 +1,6 @@
 ﻿#include "c_vector.h"
 
-// Создание пустого весктора.
+// Создание пустого вектора.
 // В случае ошибки возвращает NULL.
 // Позволяет создавать вектор с нулевой емкостью.
 c_vector *c_vector_create(const size_t _size_of_element, const size_t _capacity)
