@@ -36,11 +36,6 @@ void *c_vector_unsafe_at(c_vector *const _vector, const size_t _index);
 ptrdiff_t c_vector_compress(c_vector *const _vector);
 ptrdiff_t c_vector_set_capacity(c_vector *const _vector, const size_t _capacity, void (*const _del_func(void *const _data)));
 
-size_t c_vector_get_size(const c_vector *const _vector);
-size_t c_vector_get_capacity(const c_vector *const _vector);
-size_t c_vector_get_size_of_element(const c_vector *const _vector);
-void *c_vector_get_data(c_vector *const _vector);
-
 void *c_vector_clone(const c_vector *const _vector);
 
 ptrdiff_t c_vector_clear(c_vector *const _vector, void (*const _del_func(void *const _data)));
