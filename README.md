@@ -38,11 +38,6 @@ const size_t index = 0;
 *( (size_t*) c_vector_unsafe_at(vector, index) ) = 100500;
 ```
 
-Клонирование вектора:
-
-```c++
-c_vector *clone = c_vector_clone(vector);
-```
 Удаление элемента с заданным индексом:
 
 ```c++
