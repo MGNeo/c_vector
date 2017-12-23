@@ -60,6 +60,7 @@ c_vector_for_each(vector, print_func);
 
 ```c++
 c_vector_delete(vector, NULL);
+vector = NULL;
 ```
 
 ## Сравнение прозводительности **c_vector** и **std::vector** (**Visual Studio 2013**)
