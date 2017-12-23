@@ -175,7 +175,7 @@ for (size_t i = 0; i < COUNT; ++i)
 	sum += *( (size_t*) c_vector_at(vector, i) );
 }
 t2 = clock();
-printf("Time: %Iu ms. sum: \n", t2 - t1, sum);
+printf("Time: %Iu ms. sum: %Iu\n", t2 - t1, sum);
 ```
 
 ~ 173 мс.
@@ -208,7 +208,7 @@ void sum_func(void *_data)
 t1 = clock();
 c_vector_for_each(vector, sum_func);
 t2 = clock();
-printf("Time: %Iu ms. sum: \n", t2 - t1, sum);
+printf("Time: %Iu ms. sum: %Iu\n", t2 - t1, sum);
 ```
 
 ~ 82 мс.
