@@ -293,30 +293,6 @@ ptrdiff_t c_vector_clear(c_vector *const _vector, void (*const _del_func(void *c
     return 1;
 }
 
-// Клонирует вектор.
-// В случае ошибки возвращает NULL.
-void *c_vector_clone(const c_vector *const _vector)
-{
-    if (_vector == NULL) return NULL;
-    c_vector *new_vector = (c_vector*)malloc(sizeof(c_vector));
-    if (new_vector == NULL) return NULL;
-    void *new_data = malloc(_vector->capacity * _vector->size_of_element);
-    if (new_data == NULL)
-    {
-        free(new_vector);
-        return NULL;
-    }
-    new_vector->capacity = _vector->capacity;
-    new_vector->size = _vector->size;
-    new_vector->size_of_element = _vector->size_of_element;
-    if (_vector->size > 0)
-    {
-        memcpy(new_data, _vector->data, _vector->size * _vector->size_of_element);
-    }
-    new_vector->data = new_data;
-    return new_vector;
-}
-
 // Ужимает вектор, перераспределяя память.
 // Если size == 0, емкость так же приравнивается к 0.
 // В случае успеха возвращает > 0, иначе < 0.
