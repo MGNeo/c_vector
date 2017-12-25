@@ -17,7 +17,7 @@ const size_t index = 0;
 c_vector_insert(vector, index);
 ```
 
-Вставка в произвольную позициюс инициализацией:
+Вставка в произвольную позицию с инициализацией:
 
 ```c++
 const size_t index = 0;
