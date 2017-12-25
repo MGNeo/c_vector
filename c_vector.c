@@ -216,7 +216,7 @@ ptrdiff_t c_vector_pop_back(c_vector *const _vector, void (*const _del_func(void
     if (_vector->size == 0) return -2;
     if (_del_func != NULL)
     {
-        _del_func((uint8_t*)_vector->data + (_vector->size - 1) * _vector->size_of_element);
+        _del_func( (uint8_t*)_vector->data + (_vector->size - 1) * _vector->size_of_element );
     }
     --_vector->size;
     return 1;
@@ -276,6 +276,27 @@ ptrdiff_t c_vector_erase(c_vector *const _vector, const size_t _index, void (*_d
     return 1;
 }
 
+// Удаление нескольких узлов с заданными индексами.
+// В случае успеха возвращает кол-во удаленных узлов.
+// В случае ошибки возвращает 0.
+// Если какой-либо индекс >= _vector->size - это не считается сбоем.
+size_t c_vector_erase_few(c_vector *const _vector, const size_t *const _indexes, const size_t _indexes_count,
+                          void (*const _del_func(void *const _data)))
+{
+    if (_vector == NULL) return 0;
+    if (_indexes == NULL) return 0;
+    if (_indexes_count == 0) return 0;
+    if (_vector->size == 0) return 0;
+    size_t count = 0;
+    for (size_t i = 0; i < _indexes_count; ++i)
+    {
+        if (_indexes[i] < _vector->size)
+        {
+            //if (_del_func)
+        }
+    }
+}
+
 // Вырезает все элементы, для данных которых _comp() возвращает > 0.
 // В случае успеха возвращает кол-во удаленных элементов.
 // В случае ошибки возвращает 0.
@@ -286,19 +307,32 @@ size_t c_vector_remove_few(c_vector *const _vector, size_t (*_comp(const void *c
     if (_comp == NULL) return 0;
     if (_vector->size == 0) return 0;
     size_t count = 0;
-    for (size_t i = 0; i < _vector->size; ++i)
+    if (_del_func != NULL)
     {
-        if (_comp((uint8_t*)_vector->data + i * _vector->size_of_element) > 0)
+        for (size_t i = 0; i < _vector->size; ++i)
         {
-            if (_del_func != NULL)
+            if (_comp((uint8_t*)_vector->data + i * _vector->size_of_element) > 0)
             {
-               _del_func( (uint8_t*)_vector->data + i * _vector->size_of_element );
+                _del_func( (uint8_t*)_vector->data + i * _vector->size_of_element );
+                ++count;
+            } else {
+                if (count != 0)
+                {
+                    memcpy((uint8_t*)_vector->data + (i - count) * _vector->size_of_element, (uint8_t*)_vector->data + i * _vector->size_of_element, _vector->size_of_element);
+                }
             }
-            ++count;
-        } else {
-            if (count != 0)
+        }
+    } else {
+        for (size_t i = 0; i < _vector->size; ++i)
+        {
+            if (_comp((uint8_t*)_vector->data + i * _vector->size_of_element) > 0)
             {
-                memcpy((uint8_t*)_vector->data + (i - count) * _vector->size_of_element, (uint8_t*)_vector->data + i * _vector->size_of_element, _vector->size_of_element);
+                ++count;
+            } else {
+                if (count != 0)
+                {
+                    memcpy((uint8_t*)_vector->data + (i - count) * _vector->size_of_element, (uint8_t*)_vector->data + i * _vector->size_of_element, _vector->size_of_element);
+                }
             }
         }
     }
