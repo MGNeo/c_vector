@@ -279,7 +279,7 @@ ptrdiff_t c_vector_erase(c_vector *const _vector, const size_t _index, void (*_d
 // Вырезает все элементы, для данных которых _comp() возвращает > 0.
 // В случае успеха возвращает кол-во удаленных элементов.
 // В случае ошибки возвращает 0.
-size_t c_vector_erase_few(c_vector *const _vector, size_t (*_comp(const void *const _data)),
+size_t c_vector_remove_few(c_vector *const _vector, size_t (*_comp(const void *const _data)),
                           void (*const _del_func(void *const _data)))
 {
     if (_vector == NULL) return 0;
