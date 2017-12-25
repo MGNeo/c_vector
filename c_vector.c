@@ -280,28 +280,109 @@ ptrdiff_t c_vector_erase(c_vector *const _vector, const size_t _index, void (*_d
 // В случае успеха возвращает кол-во удаленных узлов.
 // В случае ошибки возвращает 0.
 // Если какой-либо индекс >= _vector->size - это не считается сбоем.
-size_t c_vector_erase_few(c_vector *const _vector, const size_t *const _indexes, const size_t _indexes_count,
+// Если фукнция _del_func задана и она освобождает какие-либо ресурсы, в _indexes не должно быть двух одинаковых
+// индексов, в противном случае будет ошибка из-за повторного освобождения одних и тех же ресурсов.
+// Функция сортирует массив, на который указывает _indexes.
+size_t c_vector_erase_few(c_vector *const _vector, size_t *const _indexes, const size_t _indexes_count,
                           void (*const _del_func(void *const _data)))
 {
     if (_vector == NULL) return 0;
     if (_indexes == NULL) return 0;
     if (_indexes_count == 0) return 0;
     if (_vector->size == 0) return 0;
+
     size_t count = 0;
-    for (size_t i = 0; i < _indexes_count; ++i)
+
+    // Компаратор для бинарного поиска.
+    ptrdiff_t comp_bsearch(const void *const _key, const void *const _value)
     {
-        if (_indexes[i] < _vector->size)
+        const size_t key = *((size_t*)_key);
+        const size_t value = *((size_t*)_value);
+        if (key > value)
         {
-            //if (_del_func)
+            return 1;
+        } else {
+            if (key == value)
+            {
+                return 0;
+            } else {
+                return -1;
+            }
         }
     }
+
+    // Компаратор для сортировки массива, на который указывает _indexes.
+    ptrdiff_t comp_sort(const void *const _a, const void *_b)
+    {
+        const size_t a = *((size_t*)_a);
+        const size_t b = *((size_t*)_b);
+        if (a > b)
+        {
+            return 1;
+        } else {
+            if (a == b)
+            {
+                return 0;
+            } else {
+                return -1;
+            }
+        }
+    }
+    // Отсортируем массив с индексами.
+    qsort(_indexes, _indexes_count, sizeof(size_t), comp_sort);
+
+    // Удалим элементы с заданными порядковыми индексами и сдвинем оставшиеся куски, чтобы в векторе
+    // не осталось дыр.
+    if (_del_func != NULL)
+    {
+        for (size_t i = 0; i < _vector->size; ++i)
+        {
+            if (bsearch(&i,
+                        _indexes,
+                        _indexes_count,
+                        sizeof(size_t),
+                        comp_bsearch) != NULL)
+            {
+                _del_func( (uint8_t*)_vector->data + i * _vector->size_of_element);
+                ++count;
+            } else {
+                if (count > 0)
+                {
+                    memcpy((uint8_t*)_vector->data + (i - count) * _vector->size_of_element,
+                           (uint8_t*)_vector->data + i * _vector->size_of_element,
+                           _vector->size_of_element);
+                }
+            }
+        }
+    } else {
+        for (size_t i = 0; i < _vector->size; ++i)
+        {
+            if (bsearch(&i,
+                        _indexes,
+                        _indexes_count,
+                        sizeof(size_t),
+                        comp_bsearch) != NULL)
+            {
+                ++count;
+            } else {
+                if (count > 0)
+                {
+                    memcpy((uint8_t*)_vector->data + (i - count) * _vector->size_of_element,
+                           (uint8_t*)_vector->data + i * _vector->size_of_element,
+                           _vector->size_of_element);
+                }
+            }
+        }
+    }
+    _vector->size -= count;
+    return count;
 }
 
 // Вырезает все элементы, для данных которых _comp() возвращает > 0.
 // В случае успеха возвращает кол-во удаленных элементов.
 // В случае ошибки возвращает 0.
 size_t c_vector_remove_few(c_vector *const _vector, size_t (*_comp(const void *const _data)),
-                          void (*const _del_func(void *const _data)))
+                           void (*const _del_func(void *const _data)))
 {
     if (_vector == NULL) return 0;
     if (_comp == NULL) return 0;
@@ -316,9 +397,11 @@ size_t c_vector_remove_few(c_vector *const _vector, size_t (*_comp(const void *c
                 _del_func( (uint8_t*)_vector->data + i * _vector->size_of_element );
                 ++count;
             } else {
-                if (count != 0)
+                if (count > 0)
                 {
-                    memcpy((uint8_t*)_vector->data + (i - count) * _vector->size_of_element, (uint8_t*)_vector->data + i * _vector->size_of_element, _vector->size_of_element);
+                    memcpy((uint8_t*)_vector->data + (i - count) * _vector->size_of_element,
+                           (uint8_t*)_vector->data + i * _vector->size_of_element,
+                           _vector->size_of_element);
                 }
             }
         }
@@ -329,9 +412,11 @@ size_t c_vector_remove_few(c_vector *const _vector, size_t (*_comp(const void *c
             {
                 ++count;
             } else {
-                if (count != 0)
+                if (count > 0)
                 {
-                    memcpy((uint8_t*)_vector->data + (i - count) * _vector->size_of_element, (uint8_t*)_vector->data + i * _vector->size_of_element, _vector->size_of_element);
+                    memcpy((uint8_t*)_vector->data + (i - count) * _vector->size_of_element,
+                           (uint8_t*)_vector->data + i * _vector->size_of_element,
+                           _vector->size_of_element);
                 }
             }
         }
