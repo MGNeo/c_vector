@@ -312,7 +312,7 @@ size_t c_vector_erase_few(c_vector *const _vector, size_t *const _indexes, const
     }
 
     // Компаратор для сортировки массива, на который указывает _indexes.
-    ptrdiff_t comp_sort(const void *const _a, const void *_b)
+    ptrdiff_t comp_sort(const void *const _a, const void *const _b)
     {
         const size_t a = *((size_t*)_a);
         const size_t b = *((size_t*)_b);
