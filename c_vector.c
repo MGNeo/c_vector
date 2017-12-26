@@ -290,9 +290,7 @@ size_t c_vector_erase_few(c_vector *const _vector, size_t *const _indexes, const
     if (_indexes == NULL) return 0;
     if (_indexes_count == 0) return 0;
     if (_vector->size == 0) return 0;
-
     size_t count = 0;
-
     // Компаратор для бинарного поиска.
     ptrdiff_t comp_bsearch(const void *const _key, const void *const _value)
     {
@@ -310,7 +308,6 @@ size_t c_vector_erase_few(c_vector *const _vector, size_t *const _indexes, const
             }
         }
     }
-
     // Компаратор для сортировки массива, на который указывает _indexes.
     ptrdiff_t comp_sort(const void *const _a, const void *const _b)
     {
@@ -330,7 +327,6 @@ size_t c_vector_erase_few(c_vector *const _vector, size_t *const _indexes, const
     }
     // Отсортируем массив с индексами.
     qsort(_indexes, _indexes_count, sizeof(size_t), comp_sort);
-
     // Удалим элементы с заданными порядковыми индексами и сдвинем оставшиеся куски, чтобы в векторе
     // не осталось дыр.
     if (_del_func != NULL)
