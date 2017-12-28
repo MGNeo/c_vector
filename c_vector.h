@@ -8,9 +8,9 @@
 
 typedef struct s_c_vector
 {
-    size_t size;
-    size_t capacity;
-    size_t size_of_element;
+    size_t size,
+           capacity,
+           size_of_element;
     void *data;
 } c_vector;
 
