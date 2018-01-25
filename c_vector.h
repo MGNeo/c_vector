@@ -34,7 +34,7 @@ size_t c_vector_erase_few(c_vector *const _vector,
 
 size_t c_vector_remove_few(c_vector *const _vector,
                            size_t (*const _comp)(const void *const _data),
-                          void (*const _del_func)(void *const _data));
+                           void (*const _del_func)(void *const _data));
 
 void *c_vector_push_back(c_vector *const _vector);
 
