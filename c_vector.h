@@ -38,7 +38,6 @@ size_t c_vector_remove_few(c_vector *const _vector,
 
 void *c_vector_push_back(c_vector *const _vector);
 
-
 ptrdiff_t c_vector_pop_back(c_vector *const _vector,
                             void (*const _del_func)(void *const _data));
 
