@@ -427,10 +427,12 @@ size_t c_vector_remove_few(c_vector *const _vector, size_t (*const _comp)(const 
 
 // Очищает вектор от данных.
 // Емкость не изменяется.
-// В случае успеха возвращает > 0, иначе < 0.
+// В случае успеха возвращает > 0, в случае ошибки < 0.
 ptrdiff_t c_vector_clear(c_vector *const _vector, void (*const _del_func)(void *const _data))
 {
     if (_vector == NULL) return -1;
+    if (_vector->size == 0) return 1;
+    
     if (_del_func != NULL)
     {
         for (size_t i = 0; i < _vector->size; ++i)
@@ -439,7 +441,7 @@ ptrdiff_t c_vector_clear(c_vector *const _vector, void (*const _del_func)(void *
         }
     }
     _vector->size = 0;
-    return 1;
+    return 2;
 }
 
 // Ужимает вектор, перераспределяя память.
@@ -537,17 +539,17 @@ ptrdiff_t c_vector_set_capacity(c_vector *const _vector, const size_t _capacity,
 }
 
 // Проходит по всему размеру вектора и выполняет над данными каждого элемента действие _func.
-// В случае успеха возвращает > 0, иначе < 0.
+// В случае успеха возвращает > 0, в случае ошибки < 0.
 ptrdiff_t c_vector_for_each(c_vector *const _vector, void (*const _func)(void *const _data))
 {
     if (_vector == NULL) return -1;
     if (_func == NULL) return -2;
-    if (_vector->size == 0) return -3;
+    if (_vector->size == 0) return 1;
     for (size_t i = 0; i < _vector->size; ++i)
     {
         _func((uint8_t*)_vector->data + i * _vector->size_of_element);
     }
-    return 1;
+    return 2;
 }
 
 // Небезопасное обращение к элементу с заданным индексом.
