@@ -312,40 +312,55 @@ size_t c_vector_erase_few(c_vector *const _vector, size_t *const _indexes, const
     // Если в массиве вообще нет корректных индексов - умываем руки.
     if (_indexes[0] > _vector->size) return 0;
 
-    // Определим кол-во уникальных (и корректных) индексов и избавимся от повторяющихся.
-    size_t u_count = 1;
+    // Избавимся от повторяющихся индексов.
+    size_t i_index = 0;
     for (size_t i = 1; (i < _indexes_count) && (_indexes[i] < _vector->size); ++i)
     {
         if (_indexes[i] != _indexes[i - 1])
         {
-            _indexes[++u_count - 1] = _indexes[i];
+            _indexes[++i_index] = _indexes[i];
         }
     }
 
     // Удалим и сдвинем.
+    i_index = 0;
     if (_del_func != NULL)
     {
-        for (size_t c = 0; c < u_count; ++c)
+        for (size_t i = _indexes[0]; i < _vector->size; ++i)
         {
-            _del_func((uint8_t*)_vector->data + _indexes[c] * _vector->size_of_element);
-
-            // Сдвигаем все последующие элементы.
-            size_t J;
-            if (c < u_count - 1)
+            if (_indexes[i_index] == i)
             {
-                J = _indexes[c + 1];
+                _del_func((uint8_t*)_vector->data + i * _vector->size_of_element);
+                ++i_index;
             } else {
-                J = _vector->size;
+                if (i_index > 0)
+                {
+                    memmove((uint8_t*)_vector->data + (i - i_index) * _vector->size_of_element,
+                            (uint8_t*)_vector->data + i * _vector->size_of_element,
+                            _vector->size_of_element);
+                }
             }
-
-            for (size_t j = _indexes[i]; j < J; ++j)
+        }
+    } else {
+        for (size_t i = _indexes[0]; i < _vector->size; ++i)
+        {
+            if (_indexes[i_index] == i)
             {
-                // Тут уже нужно будет помолиться, и даже головой об пол.
+                ++i_index;
+            } else {
+                if (i_index > 0)
+                {
+                    memmove((uint8_t*)_vector->data + (i - i_index) * _vector->size_of_element,
+                            (uint8_t*)_vector->data + i * _vector->size_of_element,
+                            _vector->size_of_element);
+                }
             }
         }
     }
 
-    return u_count;
+    _vector->size -= i_index;
+
+    return i_index;
 }
 
 // Вырезает все элементы, для данных которых _comp() возвращает > 0.
@@ -357,7 +372,7 @@ size_t c_vector_remove_few(c_vector *const _vector, size_t (*const _comp)(const 
     if (_vector == NULL) return 0;
     if (_comp == NULL) return 0;
     if (_vector->size == 0) return 0;
-    size_t count = 0;
+    size_t offset = 0;
     if (_del_func != NULL)
     {
         for (size_t i = 0; i < _vector->size; ++i)
@@ -365,13 +380,13 @@ size_t c_vector_remove_few(c_vector *const _vector, size_t (*const _comp)(const 
             if (_comp((uint8_t*)_vector->data + i * _vector->size_of_element) > 0)
             {
                 _del_func( (uint8_t*)_vector->data + i * _vector->size_of_element );
-                ++count;
+                ++offset;
             } else {
-                if (count > 0)
+                if (offset > 0)
                 {
-                    memcpy((uint8_t*)_vector->data + (i - count) * _vector->size_of_element,
-                           (uint8_t*)_vector->data + i * _vector->size_of_element,
-                           _vector->size_of_element);
+                    memmove((uint8_t*)_vector->data + (i - offset) * _vector->size_of_element,
+                            (uint8_t*)_vector->data + i * _vector->size_of_element,
+                            _vector->size_of_element);
                 }
             }
         }
@@ -380,19 +395,19 @@ size_t c_vector_remove_few(c_vector *const _vector, size_t (*const _comp)(const 
         {
             if (_comp((uint8_t*)_vector->data + i * _vector->size_of_element) > 0)
             {
-                ++count;
+                ++offset;
             } else {
-                if (count > 0)
+                if (offset > 0)
                 {
-                    memcpy((uint8_t*)_vector->data + (i - count) * _vector->size_of_element,
-                           (uint8_t*)_vector->data + i * _vector->size_of_element,
-                           _vector->size_of_element);
+                    memmove((uint8_t*)_vector->data + (i - offset) * _vector->size_of_element,
+                            (uint8_t*)_vector->data + i * _vector->size_of_element,
+                            _vector->size_of_element);
                 }
             }
         }
     }
-    _vector->size -= count;
-    return count;
+    _vector->size -= offset;
+    return offset;
 }
 
 // Очищает вектор от данных.
