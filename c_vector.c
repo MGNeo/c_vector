@@ -310,7 +310,7 @@ size_t c_vector_erase_few(c_vector *const _vector, size_t *const _indexes, const
     qsort(_indexes, _indexes_count, sizeof(size_t), comp_sort);
 
     // Если в массиве вообще нет корректных индексов - умываем руки.
-    if (_indexes[0] > _vector->size) return 0;
+    if (_indexes[0] >= _vector->size) return 0;
 
     // Избавимся от повторяющихся индексов.
     size_t i_index = 0;
