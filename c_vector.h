@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
 typedef struct s_c_vector
 {
@@ -25,7 +26,7 @@ void *c_vector_insert(c_vector *const _vector,
 
 ptrdiff_t c_vector_erase(c_vector *const _vector,
                          const size_t _index,
-                         void (*_del_func)(void *const _data));
+                         void (*const _del_func)(void *const _data));
 
 size_t c_vector_erase_few(c_vector *const _vector,
                           size_t *const _indexes,
