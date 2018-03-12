@@ -1,13 +1,13 @@
-#include <stdio.h>
+п»ї#include <stdio.h>
 #include <stdlib.h>
 #include "c_vector.h"
 
 int main()
 {
-    // Создадим вектор.
+    // РЎРѕР·РґР°РґРёРј РІРµРєС‚РѕСЂ.
     c_vector *vector = c_vector_create(1, 10);
 
-    // Заполним.
+    // Р—Р°РїРѕР»РЅРёРј.
     printf("Source vector: \n");
     for (size_t i = 0; i < 10; ++i)
     {
@@ -16,27 +16,27 @@ int main()
         printf("value[%Iu] = %Iu\n", i, i);
     }
 
-    // Сформируем массив удаляемых индексов.
+    // РЎС„РѕСЂРјРёСЂСѓРµРј РјР°СЃСЃРёРІ СѓРґР°Р»СЏРµРјС‹С… РёРЅРґРµРєСЃРѕРІ.
     size_t indexes[9] = {8, 0, 10009090, 1, 8, 11, 8, 7, 1};
 
-    // Отобразим  его.
+    // РћС‚РѕР±СЂР°Р·РёРј  РµРіРѕ.
     printf("indexes:\n");
     for (size_t i = 0; i < 9; ++i)
     {
         printf("%Iu\n",(size_t)indexes[i]);
     }
 
-    // Удалим элементы с некоторыми индексами.
+    // РЈРґР°Р»РёРј СЌР»РµРјРµРЅС‚С‹ СЃ РЅРµРєРѕС‚РѕСЂС‹РјРё РёРЅРґРµРєСЃР°РјРё.
     c_vector_erase_few(vector, indexes, 9, NULL);
 
-    // Выведем содержимое вектора после удаления.
+    // Р’С‹РІРµРґРµРј СЃРѕРґРµСЂР¶РёРјРѕРµ РІРµРєС‚РѕСЂР° РїРѕСЃР»Рµ СѓРґР°Р»РµРЅРёСЏ.
     printf("Not source vector: \n");
     for (size_t i = 0; i < vector->size; ++i)
     {
         printf("vector[%Iu] = %Iu\n", i, (size_t)(*( (uint8_t*) c_vector_at(vector, i) )) );
     }
 
-    // Выведем содержимое индексов.
+    // Р’С‹РІРµРґРµРј СЃРѕРґРµСЂР¶РёРјРѕРµ РёРЅРґРµРєСЃРѕРІ.
     printf("indexes: \n");
     for (size_t i = 0; i < 9; ++i)
     {
