@@ -487,13 +487,17 @@ ptrdiff_t c_vector_set_capacity(c_vector *const _vector,
     if (_vector == NULL) return -1;
     if (_capacity == _vector->capacity) return 1;
 
+    // Новая емкость больше старой.
     if (_capacity > _vector->capacity)
     {
+        const size_t data_size = _capacity * _vector->size_of_element;
         // Проверка сразу двух возможных вариантов переполнения (емкость и размер data).
-        if (_capacity * _vector->size_of_element < _vector->capacity * _vector->size_of_element)
+        if ( (data_size == 0) ||
+             (data_size < _vector->capacity * _vector->size_of_element) )
         {
-            return -2;
+             return -2;
         }
+
         void *new_data = malloc(_capacity * _vector->size_of_element);
         if (new_data == NULL) return -3;
         if (_vector->size > 0)
