@@ -1,4 +1,17 @@
-﻿#include "c_vector.h"
+﻿/*
+    Файл реализации вектора c_vector
+    Разработка, отладка и сборка производилась в:
+    ОС: Windows 10/x64
+    IDE: Code::Blocks 17.12
+    Компилятор: default Code::Blocks 17.12 MinGW
+    Разработчик: Глухманюк Максим
+    Эл. почта: mgneo@yandex.ru
+    Место: Российская Федерация, Самарская область, Сызрань
+    Дата: 16.03.2018
+    Лицензия: GPLv3
+*/
+
+#include "c_vector.h"
 
 // Создание пустого вектора.
 // В случае ошибки возвращает NULL.
@@ -7,6 +20,7 @@ c_vector *c_vector_create(const size_t _size_of_element,
                           const size_t _capacity)
 {
     if (_size_of_element == 0) return NULL;
+
     void *new_data = NULL;
     if (_capacity > 0)
     {
@@ -18,7 +32,7 @@ c_vector *c_vector_create(const size_t _size_of_element,
         if (new_data == NULL) return NULL;
     }
     // Попытаемся выделить память под вектор.
-    c_vector *new_vector = (c_vector*)malloc(sizeof(c_vector));
+    c_vector *const new_vector = (c_vector*)malloc(sizeof(c_vector));
     if (new_vector == NULL)
     {
         free(new_data);
@@ -37,6 +51,7 @@ ptrdiff_t c_vector_delete(c_vector *const _vector,
                           void (*const _del_func)(void *const _data))
 {
     if (_vector == NULL) return -1;
+
     if (_vector->size > 0)
     {
         if (_del_func != NULL)
@@ -52,6 +67,7 @@ ptrdiff_t c_vector_delete(c_vector *const _vector,
         free(_vector->data);
     }
     free(_vector);
+
     return 1;
 }
 
@@ -61,6 +77,7 @@ ptrdiff_t c_vector_delete(c_vector *const _vector,
 void *c_vector_push_back(c_vector *const _vector)
 {
     if (_vector == NULL) return NULL;
+
     if (_vector->size == _vector->capacity)
     {
         // Определим новую емкость.
@@ -71,7 +88,7 @@ void *c_vector_push_back(c_vector *const _vector)
             return NULL;
         }
         // Попытаемся выделить память под данные.
-        void *new_data = realloc(_vector->data, new_capacity * _vector->size_of_element);
+        void *const new_data = realloc(_vector->data, new_capacity * _vector->size_of_element);
         if (new_data == NULL) return NULL;
 
         _vector->data = new_data;
@@ -99,7 +116,7 @@ void *c_vector_insert(c_vector *const _vector,
             return NULL;
         }
         // Попытаемся выделить память под данные.
-        void *new_data = malloc(new_capacity * _vector->size_of_element);
+        void *const new_data = malloc(new_capacity * _vector->size_of_element);
         if (new_data == NULL) return NULL;
 
         if (_vector->size > 0)
@@ -200,7 +217,7 @@ void *c_vector_push_front(c_vector *const _vector)
         const size_t new_capacity = _vector->capacity * 1.5f + 1;
         // Проверка сразу двух возможных вариантов переполнения (емкость и размер data).
         if (new_capacity * _vector->size_of_element < _vector->capacity * _vector->size_of_element) return NULL;
-        void *new_data = malloc(new_capacity * _vector->size_of_element);
+        void *const new_data = malloc(new_capacity * _vector->size_of_element);
 
         if (new_data == NULL) return NULL;
         if (_vector->size > 0)
@@ -466,7 +483,7 @@ ptrdiff_t c_vector_compress(c_vector *const _vector)
     size_t new_capacity = _vector->size;
     if (new_capacity > 0)
     {
-        void *new_data = realloc(_vector->data, new_capacity * _vector->size_of_element);
+        void *const new_data = realloc(_vector->data, new_capacity * _vector->size_of_element);
         if (new_data == NULL) return -2;
         _vector->data = new_data;
     } else {
@@ -490,7 +507,7 @@ ptrdiff_t c_vector_set_capacity(c_vector *const _vector,
     // Новая емкость больше старой.
     if (_capacity > _vector->capacity)
     {
-        const size_t data_size = _capacity * _vector->size_of_element;
+        const size_t data_size = _capacity * _vector->size_of_element;// _capacity может быть == 0!
         // Проверка сразу двух возможных вариантов переполнения (емкость и размер data).
         if ( (data_size == 0) ||
              (data_size < _vector->capacity * _vector->size_of_element) )
@@ -498,8 +515,10 @@ ptrdiff_t c_vector_set_capacity(c_vector *const _vector,
              return -2;
         }
 
-        void *new_data = malloc(_capacity * _vector->size_of_element);
+        // Попытаемся выделить память под новую data.
+        void *const new_data = malloc(data_size);
         if (new_data == NULL) return -3;
+
         if (_vector->size > 0)
         {
             memcpy(new_data, _vector->data, _vector->size * _vector->size_of_element);
@@ -535,7 +554,7 @@ ptrdiff_t c_vector_set_capacity(c_vector *const _vector,
             return 3;
         } else {
             // Новая емкость больше нуля, но меньше старой емкости.
-            void *new_data = malloc(_capacity * _vector->size_of_element);
+            void *const new_data = malloc(_capacity * _vector->size_of_element);
             if (new_data == NULL) return -4;
             memcpy(new_data, _vector->data, _capacity * _vector->size_of_element);
             // Если новая емкость еще и меньше размера.
