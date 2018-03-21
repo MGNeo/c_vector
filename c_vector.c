@@ -82,14 +82,25 @@ void *c_vector_push_back(c_vector *const _vector)
     if (_vector->size == _vector->capacity)
     {
         // Определим новую емкость.
-        const size_t new_capacity = _vector->capacity * 1.5f + 1;
-        // Проверка сразу двух возможных вариантов переполнения (емкость и размер data).
-        if (new_capacity * _vector->size_of_element < _vector->capacity * _vector->size_of_element)
+        size_t new_capacity = _vector->capacity * 1.5f;
+        if (new_capacity < _vector->capacity)
+        {
+            return NULL;
+        }
+        new_capacity += 1;
+        if (new_capacity == 0)
+        {
+            return NULL;
+        }
+        // Определим новый размер data.
+        const size_t new_data_size = new_capacity * _vector->size_of_element;
+        if ( (new_data_size == 0) ||
+             (new_data_size / new_capacity != _vector->size_of_element) )
         {
             return NULL;
         }
         // Попытаемся выделить память под данные.
-        void *const new_data = realloc(_vector->data, new_capacity * _vector->size_of_element);
+        void *const new_data = realloc(_vector->data, new_data_size);
         if (new_data == NULL) return NULL;
 
         _vector->data = new_data;
@@ -110,14 +121,26 @@ void *c_vector_insert(c_vector *const _vector,
     if (_vector->size == _vector->capacity)
     {
         // Определим новую емкость.
-        const size_t new_capacity = _vector->capacity * 1.5f + 1;
-        // Проверка сразу двух возможных вариантов переполнения (емкость и размер data).
-        if (new_capacity * _vector->size_of_element < _vector->capacity * _vector->size_of_element)
+        size_t new_capacity = _vector->capacity * 1.5f;
+        if (new_capacity < _vector->capacity)
         {
             return NULL;
         }
+        new_capacity += 1;
+        if (new_capacity == 0)
+        {
+            return NULL;
+        }
+        // Определим новый размер data.
+        const size_t new_data_size = new_capacity * _vector->size_of_element;
+        if  ( (new_data_size == 0) ||
+              (new_data_size / new_capacity != _vector->size_of_element) )
+        {
+            return NULL;
+        }
+
         // Попытаемся выделить память под данные.
-        void *const new_data = malloc(new_capacity * _vector->size_of_element);
+        void *const new_data = malloc(new_data_size);
         if (new_data == NULL) return NULL;
 
         if (_vector->size > 0)
@@ -215,10 +238,26 @@ void *c_vector_push_front(c_vector *const _vector)
     if (_vector->size == _vector->capacity)
     {
         // Определим новую емкость.
-        const size_t new_capacity = _vector->capacity * 1.5f + 1;
-        // Проверка сразу двух возможных вариантов переполнения (емкость и размер data).
-        if (new_capacity * _vector->size_of_element < _vector->capacity * _vector->size_of_element) return NULL;
-        void *const new_data = malloc(new_capacity * _vector->size_of_element);
+        size_t new_capacity = _vector->capacity * 1.5f;
+        if (new_capacity < _vector->capacity)
+        {
+            return NULL;
+        }
+        new_capacity += 1;
+        if (new_capacity == 0)
+        {
+            return NULL;
+        }
+        // Определим новый размер data.
+        const size_t new_data_size = new_capacity * _vector->size_of_element;
+        if ( (new_data_size == 0) ||
+             (new_data_size / new_capacity != _vector->size_of_element) )
+        {
+            return NULL;
+        }
+
+        // Попытаемся выделить память под данные.
+        void *const new_data = malloc(new_data_size);
 
         if (new_data == NULL) return NULL;
         if (_vector->size > 0)
@@ -481,18 +520,28 @@ ptrdiff_t c_vector_clear(c_vector *const _vector,
 ptrdiff_t c_vector_compress(c_vector *const _vector)
 {
     if (_vector == NULL) return -1;
-    size_t new_capacity = _vector->size;
+
+    if(_vector->capacity == _vector->size) return 1;
+
+    // Новая емкость.
+    const size_t new_capacity = _vector->size;
+
     if (new_capacity > 0)
     {
-        void *const new_data = realloc(_vector->data, new_capacity * _vector->size_of_element);
+        // Новый размер data. Проверка на арифметическое переполнение не нужна потому, что новая емкость
+        // гарантированно меньше или равна старой.
+        const size_t new_data_size = new_capacity * _vector->size_of_element;
+
+        void *const new_data = realloc(_vector->data, new_data_size);
         if (new_data == NULL) return -2;
+
         _vector->data = new_data;
     } else {
         free(_vector->data);
         _vector->data = NULL;
     }
     _vector->capacity = new_capacity;
-    return 1;
+    return 2;
 }
 
 // Задание вектору новой емкости.
@@ -508,16 +557,16 @@ ptrdiff_t c_vector_set_capacity(c_vector *const _vector,
     // Новая емкость больше старой.
     if (_capacity > _vector->capacity)
     {
-        const size_t data_size = _capacity * _vector->size_of_element;// _capacity может быть == 0!
-        // Проверка сразу двух возможных вариантов переполнения (емкость и размер data).
-        if ( (data_size == 0) ||
-             (data_size < _vector->capacity * _vector->size_of_element) )
+        // Определим новый размер data.
+        const size_t new_data_size = _capacity * _vector->size_of_element;
+        if ( (new_data_size == 0) ||
+             (new_data_size / _capacity != _vector->size_of_element) )
         {
              return -2;
         }
 
         // Попытаемся выделить память под новую data.
-        void *const new_data = malloc(data_size);
+        void *const new_data = malloc(new_data_size);
         if (new_data == NULL) return -3;
 
         if (_vector->size > 0)
@@ -555,9 +604,11 @@ ptrdiff_t c_vector_set_capacity(c_vector *const _vector,
             return 3;
         } else {
             // Новая емкость больше нуля, но меньше старой емкости.
-            void *const new_data = malloc(_capacity * _vector->size_of_element);
+            const size_t new_data_size = _capacity * _vector->size_of_element;
+            // Проверка арифметического переполнения не нужна, потому что переполнение возникнуть не может.
+            void *const new_data = malloc(new_data_size);
             if (new_data == NULL) return -4;
-            memcpy(new_data, _vector->data, _capacity * _vector->size_of_element);
+            memcpy(new_data, _vector->data, new_data_size);
             // Если новая емкость еще и меньше размера.
             if (_capacity < _vector->size)
             {
