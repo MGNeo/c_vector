@@ -133,8 +133,8 @@ void *c_vector_insert(c_vector *const _vector,
         }
         // Определим новый размер data.
         const size_t new_data_size = new_capacity * _vector->size_of_element;
-        if  ( (new_data_size == 0) ||
-              (new_data_size / new_capacity != _vector->size_of_element) )
+        if ( (new_data_size == 0) ||
+             (new_data_size / new_capacity != _vector->size_of_element) )
         {
             return NULL;
         }
@@ -521,7 +521,7 @@ ptrdiff_t c_vector_compress(c_vector *const _vector)
 {
     if (_vector == NULL) return -1;
 
-    if(_vector->capacity == _vector->size) return 1;
+    if (_vector->capacity == _vector->size) return 1;
 
     // Новая емкость.
     const size_t new_capacity = _vector->size;
