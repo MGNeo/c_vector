@@ -51,22 +51,12 @@ c_vector *c_vector_create(const size_t _size_of_element,
 ptrdiff_t c_vector_delete(c_vector *const _vector,
                           void (*const _del_func)(void *const _data))
 {
-    if (_vector == NULL) return -1;
+    if (c_vector_clear(_vector, _del_func) < 0)
+    {
+        return -1;
+    }
+    free(_vector->data);
 
-    if (_vector->size > 0)
-    {
-        if (_del_func != NULL)
-        {
-            for (size_t i = 0; i < _vector->size; ++i)
-            {
-                _del_func( (uint8_t*)_vector->data + i * _vector->size_of_element);
-            }
-        }
-    }
-    if (_vector->capacity > 0)
-    {
-        free(_vector->data);
-    }
     free(_vector);
 
     return 1;
@@ -496,12 +486,14 @@ size_t c_vector_remove_few(c_vector *const _vector,
 
 // Очищает вектор от данных.
 // Емкость не изменяется.
-// В случае успеха возвращает > 0, в случае ошибки < 0.
+// В случае успешного очищения, возвращает > 0.
+// Если в векторе нет элементов, возвращает 0.
+// В случае ошибки возвращает < 0.
 ptrdiff_t c_vector_clear(c_vector *const _vector,
                          void (*const _del_func)(void *const _data))
 {
     if (_vector == NULL) return -1;
-    if (_vector->size == 0) return 1;
+    if (_vector->size == 0) return 0;
 
     if (_del_func != NULL)
     {
