@@ -1,11 +1,12 @@
 ﻿#include <stdio.h>
 #include <stdlib.h>
+
 #include "c_vector.h"
 
-int main()
+int main(int agrc, char **argv)
 {
     // Создадим вектор.
-    c_vector *vector = c_vector_create(1, 10);
+    c_vector *vector = c_vector_create(sizeof(uint8_t), 10);
 
     // Заполним.
     printf("Source vector: \n");
@@ -15,6 +16,7 @@ int main()
 
         printf("value[%Iu] = %Iu\n", i, i);
     }
+    printf("\n");
 
     // Сформируем массив удаляемых индексов.
     size_t indexes[9] = {8, 0, 10009090, 1, 8, 11, 8, 7, 1};
@@ -25,6 +27,7 @@ int main()
     {
         printf("%Iu\n",(size_t)indexes[i]);
     }
+    printf("\n");
 
     // Удалим элементы с некоторыми индексами.
     c_vector_erase_few(vector, indexes, 9, NULL);
@@ -35,6 +38,7 @@ int main()
     {
         printf("vector[%Iu] = %Iu\n", i, (size_t)(*( (uint8_t*) c_vector_at(vector, i) )) );
     }
+    printf("\n");
 
     // Выведем содержимое индексов.
     printf("indexes: \n");
@@ -42,6 +46,7 @@ int main()
     {
         printf("%Iu\n",(size_t)indexes[i]);
     }
+    printf("\n");
 
     getchar();
     return 0;

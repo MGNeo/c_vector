@@ -14,6 +14,25 @@
 
 #include "c_vector.h"
 
+// Компаратор для сортировки массива, на который указывает _indexes.
+static int comp_sort(const void *const _index_a,
+                     const void *const _index_b)
+{
+    const size_t index_a = *((size_t*)_index_a);
+    const size_t index_b = *((size_t*)_index_b);
+    if (index_a > index_b)
+    {
+        return 1;
+    } else {
+        if (index_a == index_b)
+        {
+            return 0;
+        } else {
+            return -1;
+        }
+    }
+}
+
 // Создание пустого вектора.
 // В случае ошибки возвращает NULL.
 // Позволяет создавать вектор с нулевой емкостью.
@@ -276,13 +295,13 @@ void *c_vector_push_front(c_vector *const _vector)
 // Удаляет последний элемент.
 // В случае успеха возвращает > 0, иначе < 0.
 ptrdiff_t c_vector_pop_back(c_vector *const _vector,
-                            void (*const _del_func)(void *const _data))
+                            void (*const _del_data)(void *const _data))
 {
     if (_vector == NULL) return -1;
     if (_vector->size == 0) return -2;
-    if (_del_func != NULL)
+    if (_del_data != NULL)
     {
-        _del_func( (uint8_t*)_vector->data + (_vector->size - 1) * _vector->size_of_element );
+        _del_data( (uint8_t*)_vector->data + (_vector->size - 1) * _vector->size_of_element );
     }
     --_vector->size;
     return 1;
@@ -291,13 +310,13 @@ ptrdiff_t c_vector_pop_back(c_vector *const _vector,
 // Удаляет первый элемент.
 // В случае успеха возвращает > 0, иначе < 0.
 ptrdiff_t c_vector_pop_front(c_vector *const _vector,
-                             void (*const _del_func)(void *const _data))
+                             void (*const _del_data)(void *const _data))
 {
     if (_vector == NULL) return -1;
     if (_vector->size == 0) return -2;
-    if (_del_func != NULL)
+    if (_del_data != NULL)
     {
-        _del_func( _vector->data );
+        _del_data( _vector->data );
     }
     if (_vector->size > 1)
     {
@@ -313,13 +332,13 @@ ptrdiff_t c_vector_pop_front(c_vector *const _vector,
 // В случае успеха возвращает > 0, иначе < 0.
 ptrdiff_t c_vector_erase(c_vector *const _vector,
                          const size_t _index,
-                         void (*_del_func)(void * const _data))
+                         void (*_del_data)(void * const _data))
 {
     if (_vector == NULL) return -1;
     if (_index >= _vector->size) return -2;
-    if (_del_func != NULL)
+    if (_del_data != NULL)
     {
-        _del_func( (uint8_t*)_vector->data + _index * _vector->size_of_element );
+        _del_data( (uint8_t*)_vector->data + _index * _vector->size_of_element );
     }
     if (_vector->size > 1)
     {
@@ -353,31 +372,13 @@ ptrdiff_t c_vector_erase(c_vector *const _vector,
 size_t c_vector_erase_few(c_vector *const _vector,
                           size_t *const _indexes,
                           const size_t _indexes_count,
-                          void (*const _del_func)(void *const _data))
+                          void (*const _del_data)(void *const _data))
 {
     if (_vector == NULL) return 0;
     if (_indexes == NULL) return 0;
     if (_indexes_count == 0) return 0;
     if (_vector->size == 0) return 0;
 
-    // Компаратор для сортировки массива, на который указывает _indexes.
-    int comp_sort(const void *const _a,
-                  const void *const _b)
-    {
-        const size_t a = *((size_t*)_a);
-        const size_t b = *((size_t*)_b);
-        if (a > b)
-        {
-            return 1;
-        } else {
-            if (a == b)
-            {
-                return 0;
-            } else {
-                return -1;
-            }
-        }
-    }
     // Отсортируем массив с индексами.
     qsort(_indexes, _indexes_count, sizeof(size_t), comp_sort);
 
@@ -396,13 +397,13 @@ size_t c_vector_erase_few(c_vector *const _vector,
 
     // Удалим и сдвинем.
     i_index = 0;
-    if (_del_func != NULL)
+    if (_del_data != NULL)
     {
         for (size_t i = _indexes[0]; i < _vector->size; ++i)
         {
             if (_indexes[i_index] == i)
             {
-                _del_func((uint8_t*)_vector->data + i * _vector->size_of_element);
+                _del_data((uint8_t*)_vector->data + i * _vector->size_of_element);
                 ++i_index;
             } else {
                 if (i_index > 0)
@@ -414,6 +415,8 @@ size_t c_vector_erase_few(c_vector *const _vector,
             }
         }
     } else {
+        // Дублирование кода, чтобы на каждом элементе не проверять,
+        // задана ли функция удаления.
         for (size_t i = _indexes[0]; i < _vector->size; ++i)
         {
             if (_indexes[i_index] == i)
@@ -439,21 +442,21 @@ size_t c_vector_erase_few(c_vector *const _vector,
 // В случае успеха возвращает кол-во удаленных элементов.
 // В случае ошибки возвращает 0.
 size_t c_vector_remove_few(c_vector *const _vector,
-                           size_t (*const _comp)(const void *const _data),
-                           void (*const _del_func)(void *const _data))
+                           size_t (*const _comp_data)(const void *const _data),
+                           void (*const _del_data)(void *const _data))
 {
     if (_vector == NULL) return 0;
-    if (_comp == NULL) return 0;
+    if (_comp_data == NULL) return 0;
     if (_vector->size == 0) return 0;
 
     size_t offset = 0;
-    if (_del_func != NULL)
+    if (_del_data != NULL)
     {
         for (size_t i = 0; i < _vector->size; ++i)
         {
-            if (_comp((uint8_t*)_vector->data + i * _vector->size_of_element) > 0)
+            if (_comp_data((uint8_t*)_vector->data + i * _vector->size_of_element) > 0)
             {
-                _del_func( (uint8_t*)_vector->data + i * _vector->size_of_element );
+                _del_data( (uint8_t*)_vector->data + i * _vector->size_of_element );
                 ++offset;
             } else {
                 if (offset > 0)
@@ -465,9 +468,11 @@ size_t c_vector_remove_few(c_vector *const _vector,
             }
         }
     } else {
+        // Дублирование кода, чтобы на каждом элементе не проверять,
+        // задана ли функция удаления.
         for (size_t i = 0; i < _vector->size; ++i)
         {
-            if (_comp((uint8_t*)_vector->data + i * _vector->size_of_element) > 0)
+            if (_comp_data((uint8_t*)_vector->data + i * _vector->size_of_element) > 0)
             {
                 ++offset;
             } else {
@@ -490,16 +495,16 @@ size_t c_vector_remove_few(c_vector *const _vector,
 // Если в векторе нет элементов, возвращает 0.
 // В случае ошибки возвращает < 0.
 ptrdiff_t c_vector_clear(c_vector *const _vector,
-                         void (*const _del_func)(void *const _data))
+                         void (*const _del_data)(void *const _data))
 {
     if (_vector == NULL) return -1;
     if (_vector->size == 0) return 0;
 
-    if (_del_func != NULL)
+    if (_del_data != NULL)
     {
         for (size_t i = 0; i < _vector->size; ++i)
         {
-            _del_func((uint8_t*)_vector->data + i * _vector->size_of_element);
+            _del_data((uint8_t*)_vector->data + i * _vector->size_of_element);
         }
     }
     _vector->size = 0;
@@ -541,7 +546,7 @@ ptrdiff_t c_vector_compress(c_vector *const _vector)
 // В случае успеха возвращает > 0, иначе < 0.
 ptrdiff_t c_vector_set_capacity(c_vector *const _vector,
                                 const size_t _capacity,
-                                void (*const _del_func)(void *const _data))
+                                void (*const _del_data)(void *const _data))
 {
     if (_vector == NULL) return -1;
     if (_capacity == _vector->capacity) return 1;
@@ -578,11 +583,11 @@ ptrdiff_t c_vector_set_capacity(c_vector *const _vector,
         {
             if (_vector->size > 0)
             {
-                if (_del_func != NULL)
+                if (_del_data != NULL)
                 {
                     for (size_t i = 0; i < _vector->size; ++i)
                     {
-                        _del_func((uint8_t*)_vector->data + i * _vector->size_of_element);
+                        _del_data((uint8_t*)_vector->data + i * _vector->size_of_element);
                     }
                 }
             }
@@ -604,11 +609,11 @@ ptrdiff_t c_vector_set_capacity(c_vector *const _vector,
             // Если новая емкость еще и меньше размера.
             if (_capacity < _vector->size)
             {
-                if (_del_func != NULL)
+                if (_del_data != NULL)
                 {
                     for (size_t i = _capacity; i < _vector->size; ++i)
                     {
-                        _del_func((uint8_t*)_vector->data + i * _vector->size_of_element);
+                        _del_data((uint8_t*)_vector->data + i * _vector->size_of_element);
                     }
                 }
                 _vector->size = _capacity;
@@ -624,14 +629,14 @@ ptrdiff_t c_vector_set_capacity(c_vector *const _vector,
 // Проходит по всему размеру вектора и выполняет над данными каждого элемента действие _func.
 // В случае успеха возвращает > 0, в случае ошибки < 0.
 ptrdiff_t c_vector_for_each(c_vector *const _vector,
-                            void (*const _func)(void *const _data))
+                            void (*const _action_data)(void *const _data))
 {
     if (_vector == NULL) return -1;
-    if (_func == NULL) return -2;
+    if (_action_data == NULL) return -2;
     if (_vector->size == 0) return 1;
     for (size_t i = 0; i < _vector->size; ++i)
     {
-        _func((uint8_t*)_vector->data + i * _vector->size_of_element);
+        _action_data((uint8_t*)_vector->data + i * _vector->size_of_element);
     }
     return 2;
 }
