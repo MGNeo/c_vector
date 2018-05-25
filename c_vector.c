@@ -91,7 +91,7 @@ void *c_vector_push_back(c_vector *const _vector)
     if (_vector->size == _vector->capacity)
     {
         // Определим новую емкость.
-        size_t new_capacity = _vector->capacity * 1.5f;
+        size_t new_capacity = (size_t)(_vector->capacity * 1.5f);
         if (new_capacity < _vector->capacity)
         {
             return NULL;
@@ -130,7 +130,7 @@ void *c_vector_insert(c_vector *const _vector,
     if (_vector->size == _vector->capacity)
     {
         // Определим новую емкость.
-        size_t new_capacity = _vector->capacity * 1.5f;
+        size_t new_capacity = (size_t)(_vector->capacity * 1.5f);
         if (new_capacity < _vector->capacity)
         {
             return NULL;
@@ -247,7 +247,7 @@ void *c_vector_push_front(c_vector *const _vector)
     if (_vector->size == _vector->capacity)
     {
         // Определим новую емкость.
-        size_t new_capacity = _vector->capacity * 1.5f;
+        size_t new_capacity = (size_t)(_vector->capacity * 1.5f);
         if (new_capacity < _vector->capacity)
         {
             return NULL;
