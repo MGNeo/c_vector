@@ -1,6 +1,8 @@
 ﻿#include <stdio.h>
 #include <stdlib.h>
 
+#include <stdint.h>
+
 #include "c_vector.h"
 
 // В целях упрощения - проверка возвращаемых значений не выполняется.
@@ -40,6 +42,7 @@ int main(int agrc, char **argv)
 
     // Выведем содержимое вектора после удаления.
     printf("Not source vector: \n");
+    vector->size = 1;
     for (size_t i = 0; i < vector->size; ++i)
     {
         uint8_t *h_value = c_vector_at(vector, i);

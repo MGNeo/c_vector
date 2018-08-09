@@ -15,11 +15,7 @@
 #ifndef C_VECTOR_H
 #define C_VECTOR_H
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <stddef.h>
-#include <stdint.h>
-#include <string.h>
 
 typedef struct s_c_vector
 {

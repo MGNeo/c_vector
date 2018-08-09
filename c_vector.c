@@ -12,6 +12,11 @@
     Лицензия: GPLv3
 */
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+
 #include "c_vector.h"
 
 // Компаратор для сортировки массива, на который указывает _indexes.
