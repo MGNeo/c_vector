@@ -17,13 +17,7 @@
 
 #include <stddef.h>
 
-typedef struct s_c_vector
-{
-    size_t size;
-    size_t capacity;
-    size_t size_of_element;
-    void *data;
-} c_vector;
+typedef struct s_c_vector c_vector;
 
 c_vector *c_vector_create(const size_t _size_of_element,
                           const size_t _capacity);
@@ -78,5 +72,9 @@ ptrdiff_t c_vector_clear(c_vector *const _vector,
 
 ptrdiff_t c_vector_for_each(c_vector *const _vector,
                             void (*const _action_data)(void *const _data));
+
+size_t c_vector_size(const c_vector *const _vector);
+
+size_t c_vector_capacity(const c_vector *const _vector);
 
 #endif

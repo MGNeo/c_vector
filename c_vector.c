@@ -19,6 +19,14 @@
 
 #include "c_vector.h"
 
+struct s_c_vector
+{
+    size_t size;
+    size_t capacity;
+    size_t size_of_element;
+    void *data;
+};
+
 // Компаратор для сортировки массива, на который указывает _indexes.
 static int comp_sort(const void *const _index_a,
                      const void *const _index_b)
@@ -653,4 +661,28 @@ void *c_vector_unsafe_at(const c_vector *const _vector,
                          const size_t _index)
 {
     return (uint8_t*)_vector->data + _index * _vector->size_of_element;
+}
+
+// Возвращает размер вектора (кол-во элементов в векторе).
+// В случае ошибки возвращает 0.
+size_t c_vector_size(const c_vector *const _vector)
+{
+    if (_vector == NULL)
+    {
+        return 0;
+    }
+
+    return _vector->size;
+}
+
+// Возвращает емкость вектора (кол-во элементов, которое может быть вставленно в вектор).
+// В слушае ошибки возвращает 0.
+size_t c_vector_capacity(const c_vector *const _vector)
+{
+    if (_vector == NULL)
+    {
+        return 0;
+    }
+
+    return _vector->capacity;
 }
