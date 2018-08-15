@@ -410,41 +410,46 @@ size_t c_vector_erase_few(c_vector *const _vector,
 
     // Удалим и сдвинем.
     i_index = 0;
+
+    // Макросы дублирования кода для избавления от проверок внутри цикла.
+
+    // Открытие цикла.
+    #define C_VECTOR_ERASE_FEW_BEGIN\
+    for (size_t i = _indexes[0]; i < _vector->size; ++i)\
+    {\
+        if (_indexes[i_index] == i)\
+        {
+
+    // Закрытие цикла.
+    #define C_VECTOR_ERASE_FEW_END\
+            ++i_index;\
+            } else {\
+                if (i_index > 0)\
+                {\
+                    memmove((uint8_t*)_vector->data + (i - i_index) * _vector->size_of_element,\
+                            (uint8_t*)_vector->data + i * _vector->size_of_element,\
+                            _vector->size_of_element);\
+                }\
+            }\
+        }
+
+    // Функция удаления данных задана.
     if (_del_data != NULL)
     {
-        for (size_t i = _indexes[0]; i < _vector->size; ++i)
-        {
-            if (_indexes[i_index] == i)
-            {
-                _del_data((uint8_t*)_vector->data + i * _vector->size_of_element);
-                ++i_index;
-            } else {
-                if (i_index > 0)
-                {
-                    memmove((uint8_t*)_vector->data + (i - i_index) * _vector->size_of_element,
-                            (uint8_t*)_vector->data + i * _vector->size_of_element,
-                            _vector->size_of_element);
-                }
-            }
-        }
+        C_VECTOR_ERASE_FEW_BEGIN
+
+        _del_data((uint8_t*)_vector->data + i * _vector->size_of_element);
+
+        C_VECTOR_ERASE_FEW_END
     } else {
-        // Дублирование кода, чтобы на каждом элементе не проверять,
-        // задана ли функция удаления.
-        for (size_t i = _indexes[0]; i < _vector->size; ++i)
-        {
-            if (_indexes[i_index] == i)
-            {
-                ++i_index;
-            } else {
-                if (i_index > 0)
-                {
-                    memmove((uint8_t*)_vector->data + (i - i_index) * _vector->size_of_element,
-                            (uint8_t*)_vector->data + i * _vector->size_of_element,
-                            _vector->size_of_element);
-                }
-            }
-        }
+        // Функция удаления данных не задана.
+        C_VECTOR_ERASE_FEW_BEGIN
+
+        C_VECTOR_ERASE_FEW_END
     }
+
+    #undef C_VECTOR_ERASE_FEW_BEGIN
+    #undef C_VECTOR_ERASE_FEW_END
 
     _vector->size -= i_index;
 
@@ -463,41 +468,47 @@ size_t c_vector_remove_few(c_vector *const _vector,
     if (_vector->size == 0) return 0;
 
     size_t offset = 0;
+
+    // Макросы дублирования кода для исключения проверок из цикла.
+
+    // Открытие цикла.
+    #define C_VECTOR_REMOVE_FEW_BEGIN\
+    for (size_t i = 0; i < _vector->size; ++i)\
+    {\
+        if (_comp_data((uint8_t*)_vector->data + i * _vector->size_of_element) > 0)\
+        {
+
+    // Закрытие цикла.
+    #define C_VECTOR_REMOVE_FEW_END\
+            ++offset;\
+        } else {\
+            if (offset > 0)\
+            {\
+                memmove((uint8_t*)_vector->data + (i - offset) * _vector->size_of_element,\
+                        (uint8_t*)_vector->data + i * _vector->size_of_element,\
+                        _vector->size_of_element);\
+            }\
+        }\
+    }
+
+    // Функция удаления данных задана.
     if (_del_data != NULL)
     {
-        for (size_t i = 0; i < _vector->size; ++i)
-        {
-            if (_comp_data((uint8_t*)_vector->data + i * _vector->size_of_element) > 0)
-            {
-                _del_data( (uint8_t*)_vector->data + i * _vector->size_of_element );
-                ++offset;
-            } else {
-                if (offset > 0)
-                {
-                    memmove((uint8_t*)_vector->data + (i - offset) * _vector->size_of_element,
-                            (uint8_t*)_vector->data + i * _vector->size_of_element,
-                            _vector->size_of_element);
-                }
-            }
-        }
+        C_VECTOR_REMOVE_FEW_BEGIN
+
+        _del_data( (uint8_t*)_vector->data + i * _vector->size_of_element );
+
+        C_VECTOR_REMOVE_FEW_END
     } else {
-        // Дублирование кода, чтобы на каждом элементе не проверять,
-        // задана ли функция удаления.
-        for (size_t i = 0; i < _vector->size; ++i)
-        {
-            if (_comp_data((uint8_t*)_vector->data + i * _vector->size_of_element) > 0)
-            {
-                ++offset;
-            } else {
-                if (offset > 0)
-                {
-                    memmove((uint8_t*)_vector->data + (i - offset) * _vector->size_of_element,
-                            (uint8_t*)_vector->data + i * _vector->size_of_element,
-                            _vector->size_of_element);
-                }
-            }
-        }
+        // Функция удаления данных не задана
+        C_VECTOR_REMOVE_FEW_BEGIN
+
+        C_VECTOR_REMOVE_FEW_END
     }
+
+    #undef C_VECTOR_REMOVE_FEW_BEGIN
+    #undef C_VECTOR_REMOVE_FEW_END
+
     _vector->size -= offset;
     return offset;
 }
