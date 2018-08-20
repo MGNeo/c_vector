@@ -114,6 +114,7 @@ void *c_vector_push_back(c_vector *const _vector)
         {
             return NULL;
         }
+
         // Определим новый размер data.
         const size_t new_data_size = new_capacity * _vector->size_of_element;
         if ( (new_data_size == 0) ||
