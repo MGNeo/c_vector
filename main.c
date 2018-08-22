@@ -35,7 +35,7 @@ int main(int agrc, char **argv)
         {
             // Вставляем в конец вектора неинициализированный элемент и получаем
             // его адрес.
-            point_3f *p = c_vector_push_back(vector);
+            point_3f *const p = c_vector_push_back(vector);
             // Инициализируем.
             p->x = i;
             p->y = i;
