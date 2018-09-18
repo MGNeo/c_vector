@@ -126,7 +126,7 @@ int main(int agrc, char **argv)
     // Удалим из вектора несколько элементов, используя массив индексов.
     {
         const size_t indexes_count = 5;
-        size_t indexes[5] = {0, 2, 1, 3, 99};
+        size_t indexes[indexes_count] = {0, 2, 1, 3, 99};
 
         error = 0;
         // Специализированная функция для удаления объекта типа object не нужна.
