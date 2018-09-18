@@ -125,12 +125,11 @@ int main(int agrc, char **argv)
 
     // Удалим из вектора несколько элементов, используя массив индексов.
     {
-        const size_t indexes_count = 5;
-        size_t indexes[indexes_count] = {0, 2, 1, 3, 99};
+        size_t indexes[5] = {0, 2, 1, 3, 99};
 
         error = 0;
         // Специализированная функция для удаления объекта типа object не нужна.
-        const size_t d_count = c_vector_erase_few(vector, indexes, indexes_count, NULL, &error);
+        const size_t d_count = c_vector_erase_few(vector, indexes, 5, NULL, &error);
         // Если произошла ошибка, покажем ее.
         if ( (d_count == 0) && (error > 0) )
         {
