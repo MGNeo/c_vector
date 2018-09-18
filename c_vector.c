@@ -27,6 +27,16 @@ struct s_c_vector
     void *data;
 };
 
+// Если расположение задано, в него помещается код.
+static void error_set(size_t *const _error,
+                      const size_t _code)
+{
+    if (_error != NULL)
+    {
+        *_error = _code;
+    }
+}
+
 // Компаратор для сортировки массива, на который указывает _indexes.
 static int comp_sort(const void *const _index_a,
                      const void *const _index_b)
@@ -47,28 +57,43 @@ static int comp_sort(const void *const _index_a,
 }
 
 // Создание пустого вектора.
-// В случае ошибки возвращает NULL.
+// В случае ошибки возвращает NULL, и если _error != NULL, в заданное расположение
+// помещается код причины ошибки (> 0).
 // Позволяет создавать вектор с нулевой емкостью.
 c_vector *c_vector_create(const size_t _size_of_element,
-                          const size_t _capacity)
+                          const size_t _capacity,
+                          size_t *const _error)
 {
-    if (_size_of_element == 0) return NULL;
+    if (_size_of_element == 0)
+    {
+        error_set(_error, 1);
+        return NULL;
+    }
 
     void *new_data = NULL;
     if (_capacity > 0)
     {
         // Определим размер данных и проконтролируем возможное арифметическое переполнение.
         const size_t data_size = _size_of_element * _capacity;
-        if ((data_size == 0) || (data_size / _size_of_element != _capacity)) return NULL;
+        if ((data_size == 0) || (data_size / _size_of_element != _capacity))
+        {
+            error_set(_error, 2);
+            return NULL;
+        }
         // Попытаемся выделить память под данные.
         new_data = malloc(data_size);
-        if (new_data == NULL) return NULL;
+        if (new_data == NULL)
+        {
+            error_set(_error, 3);
+            return NULL;
+        }
     }
     // Попытаемся выделить память под вектор.
-    c_vector *const new_vector = (c_vector*)malloc(sizeof(c_vector));
+    c_vector *const new_vector = malloc(sizeof(c_vector));
     if (new_vector == NULL)
     {
         free(new_data);
+        error_set(_error, 4);
         return NULL;
     }
     new_vector->size = 0;
@@ -79,7 +104,8 @@ c_vector *c_vector_create(const size_t _size_of_element,
 }
 
 // Удаляет вектор.
-// В случае успеха возвращает > 0, иначе < 0.
+// В случае успеха возвращает > 0.
+// В случае ошибки возвращает < 0.
 ptrdiff_t c_vector_delete(c_vector *const _vector,
                           void (*const _del_func)(void *const _data))
 {
@@ -96,10 +122,16 @@ ptrdiff_t c_vector_delete(c_vector *const _vector,
 
 // Добавляет элемент в конец вектора.
 // В случае успеха возвращает указатель на неинициализированные данные.
-// В случае ошибки возвращает NULL.
-void *c_vector_push_back(c_vector *const _vector)
+// В случае ошибки возвращает NULL, и если _error != NULL, в заданное расположение
+// помещается код причины ошибки (> 0).
+void *c_vector_push_back(c_vector *const _vector,
+                         size_t *const _error)
 {
-    if (_vector == NULL) return NULL;
+    if (_vector == NULL)
+    {
+        error_set(_error, 1);
+        return NULL;
+    }
 
     if (_vector->size == _vector->capacity)
     {
@@ -107,11 +139,13 @@ void *c_vector_push_back(c_vector *const _vector)
         size_t new_capacity = (size_t)(_vector->capacity * 1.5f);
         if (new_capacity < _vector->capacity)
         {
+            error_set(_error, 2);
             return NULL;
         }
         new_capacity += 1;
         if (new_capacity == 0)
         {
+            error_set(_error, 3);
             return NULL;
         }
 
@@ -120,11 +154,16 @@ void *c_vector_push_back(c_vector *const _vector)
         if ( (new_data_size == 0) ||
              (new_data_size / new_capacity != _vector->size_of_element) )
         {
+            error_set(_error, 4);
             return NULL;
         }
         // Попытаемся выделить память под данные.
         void *const new_data = realloc(_vector->data, new_data_size);
-        if (new_data == NULL) return NULL;
+        if (new_data == NULL)
+        {
+            error_set(_error, 5);
+            return NULL;
+        }
 
         _vector->data = new_data;
         _vector->capacity = new_capacity;
@@ -135,23 +174,35 @@ void *c_vector_push_back(c_vector *const _vector)
 
 // Добавляет неинициализированный элемент в произвольную позицию вектора [0; +size].
 // В случае успеха возвращает указатель на вставленный неинициализированные данные.
-// В случае ошибки возвращает NULL.
+// В случае ошибки возвращает NULL, и если _error != NULL, в заданное расположение
+// помещается код причины ошибки (> 0).
 void *c_vector_insert(c_vector *const _vector,
-                      const size_t _index)
+                      const size_t _index,
+                      size_t *const _error)
 {
-    if (_vector == NULL) return NULL;
-    if (_index > _vector->size) return NULL;
+    if (_vector == NULL)
+    {
+        error_set(_error, 1);
+        return NULL;
+    }
+    if (_index > _vector->size)
+    {
+        error_set(_error, 2);
+        return NULL;
+    }
     if (_vector->size == _vector->capacity)
     {
         // Определим новую емкость.
         size_t new_capacity = (size_t)(_vector->capacity * 1.5f);
         if (new_capacity < _vector->capacity)
         {
+            error_set(_error, 3);
             return NULL;
         }
         new_capacity += 1;
         if (new_capacity == 0)
         {
+            error_set(_error, 4);
             return NULL;
         }
         // Определим новый размер data.
@@ -159,13 +210,17 @@ void *c_vector_insert(c_vector *const _vector,
         if ( (new_data_size == 0) ||
              (new_data_size / new_capacity != _vector->size_of_element) )
         {
+            error_set(_error, 5);
             return NULL;
         }
 
         // Попытаемся выделить память под данные.
         void *const new_data = malloc(new_data_size);
-        if (new_data == NULL) return NULL;
-
+        if (new_data == NULL)
+        {
+            error_set(_error, 6);
+            return NULL;
+        }
         if (_vector->size > 0)
         {
             if (_index == 0)
@@ -225,50 +280,88 @@ void *c_vector_insert(c_vector *const _vector,
 }
 
 // Возвращает указатель на последний элемент вектора.
-// В случае ошибки возвращает NULL.
-void *c_vector_back(const c_vector *const _vector)
+// В случае ошибки возвращает NULL, и если _error != NULL, в заданное расположение
+// помещается код причины ошибки (> 0).
+void *c_vector_back(const c_vector *const _vector,
+                    size_t *const _error)
 {
-    if (_vector == NULL) return NULL;
-    if (_vector->size == 0) return NULL;
+    if (_vector == NULL)
+    {
+        error_set(_error, 1);
+        return NULL;
+    }
+    if (_vector->size == 0)
+    {
+        error_set(_error, 2);
+        return NULL;
+    }
     return (uint8_t*)_vector->data + (_vector->size - 1) * _vector->size_of_element;
 }
 
 // Возвращает указатель на первый элемент вектора.
-// В случае ошибки возвращает NULL.
-void *c_vector_front(const c_vector *const _vector)
+// В случае ошибки возвращает NULL, и если _error != NULL, в заданное расположение
+// помещается код причины ошибки (> 0).
+void *c_vector_front(const c_vector *const _vector,
+                     size_t *const _error)
 {
-    if (_vector == NULL) return NULL;
-    if (_vector->size == 0) return NULL;
+    if (_vector == NULL)
+    {
+        error_set(_error, 1);
+        return NULL;
+    }
+    if (_vector->size == 0)
+    {
+        error_set(_error, 2);
+        return NULL;
+    }
     return _vector->data;
 }
 
 // Возвращает указатель на элемент с заданным индексом.
-// В случае ошибки возвращает NULL.
+// В случае ошибки возвращает NULL, и если _error != NULL, в заданное расположение
+// помещается код причины ошибки (> 0).
 void *c_vector_at(const c_vector *const _vector,
-                  const size_t _index)
+                  const size_t _index,
+                  size_t *const _error)
 {
-    if (_vector == NULL) return NULL;
-    if (_index >= _vector->size) return NULL;
+    if (_vector == NULL)
+    {
+        error_set(_error, 1);
+        return NULL;
+    }
+    if (_index >= _vector->size)
+    {
+        error_set(_error, 2);
+        return NULL;
+    }
     return (uint8_t*)_vector->data + _index * _vector->size_of_element;
 }
 
-// Вставляет элемент в начало вектора.
+// Вставляет неинициализированный элемент в начало вектора.
 // В случае успеха возвращает указатель на неинициализированные данные.
-// В случае ошибки возвращает NULL.
-void *c_vector_push_front(c_vector *const _vector)
+// В случае ошибки возвращает NULL, и если _error != NULL, в заданное расположение
+// помещается код причины ошибки (> 0).
+void *c_vector_push_front(c_vector *const _vector,
+                          size_t *const _error)
 {
-    if (_vector == NULL) return NULL;
+    if (_vector == NULL)
+    {
+        error_set(_error, 1);
+        return NULL;
+    }
     if (_vector->size == _vector->capacity)
     {
         // Определим новую емкость.
         size_t new_capacity = (size_t)(_vector->capacity * 1.5f);
         if (new_capacity < _vector->capacity)
         {
+            error_set(_error, 2);
             return NULL;
         }
         new_capacity += 1;
         if (new_capacity == 0)
         {
+            error_set(_error, 3);
             return NULL;
         }
         // Определим новый размер data.
@@ -276,6 +369,7 @@ void *c_vector_push_front(c_vector *const _vector)
         if ( (new_data_size == 0) ||
              (new_data_size / new_capacity != _vector->size_of_element) )
         {
+            error_set(_error, 4);
             return NULL;
         }
 
@@ -307,12 +401,14 @@ void *c_vector_push_front(c_vector *const _vector)
 }
 
 // Удаляет последний элемент.
-// В случае успеха возвращает > 0, иначе < 0.
+// Если элемент был удален, возвращает > 0.
+// Если в векторе не было элементов, возвращает 0.
+// В случае ошибки возвращает < 0.
 ptrdiff_t c_vector_pop_back(c_vector *const _vector,
                             void (*const _del_data)(void *const _data))
 {
     if (_vector == NULL) return -1;
-    if (_vector->size == 0) return -2;
+    if (_vector->size == 0) return 0;
     if (_del_data != NULL)
     {
         _del_data( (uint8_t*)_vector->data + (_vector->size - 1) * _vector->size_of_element );
@@ -322,12 +418,14 @@ ptrdiff_t c_vector_pop_back(c_vector *const _vector,
 }
 
 // Удаляет первый элемент.
-// В случае успеха возвращает > 0, иначе < 0.
+// Если элемент был удален, возвращает > 0.
+// Если в векторе не было элементов, возвращает 0.
+// В случае ошибки возвращает < 0.
 ptrdiff_t c_vector_pop_front(c_vector *const _vector,
                              void (*const _del_data)(void *const _data))
 {
     if (_vector == NULL) return -1;
-    if (_vector->size == 0) return -2;
+    if (_vector->size == 0) return 0;
     if (_del_data != NULL)
     {
         _del_data( _vector->data );
@@ -342,8 +440,9 @@ ptrdiff_t c_vector_pop_front(c_vector *const _vector,
     return 1;
 }
 
-// Вырезает элемент с заданным индексом.
-// В случае успеха возвращает > 0, иначе < 0.
+// Удаляет элемент с заданным индексом.
+// Если элемент был удален, возвращает > 0.
+// В случае ошибки возвращает < 0.
 ptrdiff_t c_vector_erase(c_vector *const _vector,
                          const size_t _index,
                          void (*_del_data)(void * const _data))
@@ -380,17 +479,31 @@ ptrdiff_t c_vector_erase(c_vector *const _vector,
 
 // Удаление нескольких узлов с заданными индексами.
 // В случае успеха возвращает кол-во удаленных узлов.
-// В случае ошибки возвращает 0.
+// В случае ошибки возвращает 0, и если _error != NULL, в заданное расположение помещается
+// код причины ошибки (> 0).
+// Так как функция может возвращать 0 и в случае успеха, и в случае ошибки, для детектирования ошибки
+// перед вызовом функции необходимо поместить 0 в заданное расположение ошибки.
 // Если какой-либо индекс >= _vector->size - это не считается сбоем.
 // Функция сортирует массив, на который указывает _indexes, а так же избавляется от одинаковых индексов.
 size_t c_vector_erase_few(c_vector *const _vector,
                           size_t *const _indexes,
                           const size_t _indexes_count,
-                          void (*const _del_data)(void *const _data))
+                          void (*const _del_data)(void *const _data),
+                          size_t *const _error)
 {
-    if (_vector == NULL) return 0;
-    if (_indexes == NULL) return 0;
-    if (_indexes_count == 0) return 0;
+    if (_vector == NULL)
+    {
+        error_set(_error, 1);
+        return 0;
+    }
+    if (_indexes == NULL)
+    {
+        return 0;
+    }
+    if (_indexes_count == 0)
+    {
+        return 0;
+    }
     if (_vector->size == 0) return 0;
 
     // Отсортируем массив с индексами.
@@ -457,15 +570,27 @@ size_t c_vector_erase_few(c_vector *const _vector,
     return i_index;
 }
 
-// Вырезает все элементы, для данных которых _comp() возвращает > 0.
+// Вырезает все элементы, для данных которых _pred_data() возвращает > 0.
 // В случае успеха возвращает кол-во удаленных элементов.
-// В случае ошибки возвращает 0.
+// В случае ошибки возвращает 0, и если _error != NULL, в заданное расположение помещается
+// код причины ошибки (> 0).
+// Так как функция может возвращать 0 и в случае успеха, и в случае ошибки, для детектирования ошибки
+// перед вызовом функции необходимо поместить 0 в заданное расположение ошибки.
 size_t c_vector_remove_few(c_vector *const _vector,
-                           size_t (*const _comp_data)(const void *const _data),
-                           void (*const _del_data)(void *const _data))
+                           size_t (*const _pred_data)(const void *const _data),
+                           void (*const _del_data)(void *const _data),
+                           size_t *const _error)
 {
-    if (_vector == NULL) return 0;
-    if (_comp_data == NULL) return 0;
+    if (_vector == NULL)
+    {
+        error_set(_error, 1);
+        return 0;
+    }
+    if (_pred_data == NULL)
+    {
+        error_set(_error, 2);
+        return 0;
+    }
     if (_vector->size == 0) return 0;
 
     size_t offset = 0;
@@ -476,7 +601,7 @@ size_t c_vector_remove_few(c_vector *const _vector,
     #define C_VECTOR_REMOVE_FEW_BEGIN\
     for (size_t i = 0; i < _vector->size; ++i)\
     {\
-        if (_comp_data((uint8_t*)_vector->data + i * _vector->size_of_element) > 0)\
+        if (_pred_data((uint8_t*)_vector->data + i * _vector->size_of_element) > 0)\
         {
 
     // Закрытие цикла.
@@ -538,12 +663,14 @@ ptrdiff_t c_vector_clear(c_vector *const _vector,
 
 // Ужимает вектор, перераспределяя память.
 // Если size == 0, емкость так же приравнивается к 0.
-// В случае успеха возвращает > 0, иначе < 0.
+// В случае успешного ужимания возвращает > 0.
+// Если размер был равен емкости, возвращает 0.
+// В случае ошибки возвращает < 0.
 ptrdiff_t c_vector_compress(c_vector *const _vector)
 {
     if (_vector == NULL) return -1;
 
-    if (_vector->capacity == _vector->size) return 1;
+    if (_vector->capacity == _vector->size) return 0;
 
     // Новая емкость.
     const size_t new_capacity = _vector->size;
@@ -551,7 +678,7 @@ ptrdiff_t c_vector_compress(c_vector *const _vector)
     if (new_capacity > 0)
     {
         // Новый размер data. Проверка на арифметическое переполнение не нужна потому, что новая емкость
-        // гарантированно меньше или равна старой.
+        // гарантировано меньше или равна старой.
         const size_t new_data_size = new_capacity * _vector->size_of_element;
 
         void *const new_data = realloc(_vector->data, new_data_size);
@@ -568,13 +695,15 @@ ptrdiff_t c_vector_compress(c_vector *const _vector)
 
 // Задание вектору новой емкости.
 // Если новая емкость меньше текущего размера, лишние элементы обрезаются.
-// В случае успеха возвращает > 0, иначе < 0.
+// В случае успешного изменения емкости возвращает > 0.
+// Если новая емкость была равна старой, возвращает 0.
+// В случае ошибки возвращает < 0.
 ptrdiff_t c_vector_set_capacity(c_vector *const _vector,
                                 const size_t _capacity,
                                 void (*const _del_data)(void *const _data))
 {
     if (_vector == NULL) return -1;
-    if (_capacity == _vector->capacity) return 1;
+    if (_capacity == _vector->capacity) return 0;
 
     // Новая емкость больше старой.
     if (_capacity > _vector->capacity)
@@ -651,19 +780,21 @@ ptrdiff_t c_vector_set_capacity(c_vector *const _vector,
     }
 }
 
-// Проходит по всему размеру вектора и выполняет над данными каждого элемента действие _func.
-// В случае успеха возвращает > 0, в случае ошибки < 0.
+// Проходит по всем присутствующим в векторе элементам и выполняет над каждым элементом действие _action_data.
+// В случае успеха возвращает > 0.
+// Если вектор пуст, возвращает 0.
+// В случае ошибки возвращает < 0.
 ptrdiff_t c_vector_for_each(c_vector *const _vector,
                             void (*const _action_data)(void *const _data))
 {
     if (_vector == NULL) return -1;
     if (_action_data == NULL) return -2;
-    if (_vector->size == 0) return 1;
+    if (_vector->size == 0) return 0;
     for (size_t i = 0; i < _vector->size; ++i)
     {
         _action_data((uint8_t*)_vector->data + i * _vector->size_of_element);
     }
-    return 2;
+    return 1;
 }
 
 // Небезопасное обращение к элементу с заданным индексом.
@@ -676,11 +807,16 @@ void *c_vector_unsafe_at(const c_vector *const _vector,
 }
 
 // Возвращает размер вектора (кол-во элементов в векторе).
-// В случае ошибки возвращает 0.
-size_t c_vector_size(const c_vector *const _vector)
+// В случае ошибки возвращает 0, и если _error != NULL, в заданное расположение помещается
+// код причины ошибки (> 0).
+// Так как функция может возвращать 0 и в случае успеха, и в случае ошибки, для детектирования ошибки
+// перед вызовом функции необходимо поместить 0 в заданное расположение ошибки.
+size_t c_vector_size(const c_vector *const _vector,
+                     size_t *const _error)
 {
     if (_vector == NULL)
     {
+        error_set(_error, 1);
         return 0;
     }
 
@@ -688,11 +824,16 @@ size_t c_vector_size(const c_vector *const _vector)
 }
 
 // Возвращает емкость вектора (кол-во элементов, которое может быть вставленно в вектор).
-// В слушае ошибки возвращает 0.
-size_t c_vector_capacity(const c_vector *const _vector)
+// В слушае ошибки возвращает 0, и если _error != NULL, в заданное расположение помещается
+// код причины ошибки (> 0).
+// Так как функция может возвращать 0 и в случае успеха, и в случае ошибки, для детектирования ошибки
+// перед вызовом функции необходимо поместить 0 в заданное расположение ошибки.
+size_t c_vector_capacity(const c_vector *const _vector,
+                         size_t *const _error)
 {
     if (_vector == NULL)
     {
+        error_set(_error, 1);
         return 0;
     }
 

@@ -5,188 +5,199 @@
 
 #include "c_vector.h"
 
-// В целях упрощения - проверка возвращаемых значений не выполняется.
+#define CAPACITY 5
 
-typedef struct
+typedef struct s_object
 {
-    float x, y, z;
-} point_3f;
+    int i;
+    float f;
+} object;
 
-void print_point_3f(void *const _data);
-size_t pred_point_3f(const void *const _data);
-
-void print_p_int(void *const _data);
-void del_p_int(void *const _data);
-
-int main(int agrc, char **argv)
-{
-    // Пример использования вектора, содержащего элементы типа point_3f.
-    {
-        // Создадим вектор.
-        // Начальная емкость вектора = 5 элементам.
-        c_vector *const vector = c_vector_create(sizeof(point_3f), 5);
-
-        // Добавим в конец вектора.
-        for (size_t i = 0; i < 10; ++i)
-        {
-            // Вставляем в конец вектора неинициализированный элемент и получаем
-            // его адрес.
-            point_3f *const p = c_vector_push_back(vector);
-            // Инициализируем.
-            p->x = i;
-            p->y = i;
-            p->z = i;
-        }
-
-        // Вывод содержимого вектора.
-        c_vector_for_each(vector, print_point_3f);
-        printf("\n");
-
-        // Удаляем элемент с порядковым индексом 5, не задавая
-        // специализированную функцию удаления.
-        c_vector_erase(vector, 5, NULL);
-
-        // Вывод содержимого вектора.
-        c_vector_for_each(vector, print_point_3f);
-        printf("\n");
-
-        // Удаляем из вектора все элементы, индексы которых есть в массиве.
-        // Массив indexes автоматически будет отсортирован по возрастанию.
-        size_t indexes[] = {9, 100, 3, 5};
-        c_vector_erase_few(vector, indexes, 4, NULL);
-
-        // Выводим содержимое вектора.
-        c_vector_for_each(vector, print_point_3f);
-        printf("\n");
-
-        // Удаляем из вектора все элементы, для данных которых предикат возвращает > 0,
-        // не задавая специализированную функцию удаления.
-        c_vector_remove_few(vector, pred_point_3f, NULL);
-
-        // Выводим содержимое вектора.
-        c_vector_for_each(vector, print_point_3f);
-        printf("\n");
-
-        // Выводим общую информацию о векторе.
-        printf("capacity: %Iu\n", c_vector_capacity(vector));
-        printf("size: %Iu\n\n", c_vector_size(vector));
-
-        // Приказываем вектору сжаться!
-        c_vector_compress(vector);
-
-        // Выводим общую информацию о векторе.
-        printf("capacity: %Iu\n", c_vector_capacity(vector));
-        printf("size: %Iu\n\n", c_vector_size(vector));
-
-        // Удаляем вектор, не задавая специальную функцию удаления.
-        c_vector_delete(vector, NULL);
-    }
-
-    // Пример вектора, содержащего указатели на int в куче.
-    {
-        // Создаем вектор.
-        // Начальная емкость вектора = 3 элементам.
-        c_vector *const vector = c_vector_create(sizeof(int*), 3);
-
-        // Добавляем в начало вектора.
-        for (size_t i = 0; i < 10; ++i)
-        {
-            // Вставляем в начало вектора неинициализированный int*
-            // и получаем его адрес.
-            int **const p = c_vector_push_front(vector);
-            // Инициализируем вставленный указатель.
-            *p = (int*)malloc(sizeof(int));
-            // Инициализируем данные, на которые указывает вставленный указатель.
-            **p = i;
-        }
-
-        // Вывод содержимого вектора.
-        c_vector_for_each(vector, print_p_int);
-        printf("\n");
-
-        // Удаляем элемент с заданным порядковым индексом.
-        // Специальная функция удаления задана.
-        c_vector_erase(vector, 3, del_p_int);
-
-        // Вывод содержимого вектора.
-        c_vector_for_each(vector, print_p_int);
-        printf("\n");
-
-        // Выводим общую информацию о векторе.
-        printf("capacity: %Iu\n", c_vector_capacity(vector));
-        printf("size: %Iu\n\n", c_vector_size(vector));
-
-        // Приказываем вектору сжаться!
-        c_vector_compress(vector);
-
-        // Выводим общую информацию о векторе.
-        printf("capacity: %Iu\n", c_vector_capacity(vector));
-        printf("size: %Iu\n\n", c_vector_size(vector));
-
-        // Удаляем вектор, задав специальную функцию удаления.
-        c_vector_delete(vector, del_p_int);
-    }
-
-    getchar();
-    return 0;
-}
-
-// Функция печати элемента структуры.
-void print_point_3f(void *const _data)
+// Функция вывода содержимого элемента вектора типа object.
+void print_object(void *const _data)
 {
     if (_data == NULL)
     {
         return;
     }
 
-    const point_3f *const point = (const point_3f *const)_data;
+    const object *const obj = (object*)_data;
 
-    printf("x: %03.3f y: %03.3f z: %03.3f\n",
-           point->x,
-           point->y,
-           point->z);
-
-    return;
+    printf("i: %i, f: %f\n", obj->i, obj->f);
 }
 
-// Функция, определяющая, стоит ли удалять элемент.
-size_t pred_point_3f(const void *const _data)
+// Функция, определяющая, нужно ли удалять элемент типа object.
+size_t pred_object(const void *const _data)
 {
     if (_data == NULL)
     {
         return 0;
     }
 
-    const point_3f *const point = (const point_3f *const)_data;
+    const object *const obj = (object*)_data;
 
-    return (point->x > 6);
+    if (obj->f > 9)
+    {
+        return 1;
+    }
+    return 0;
 }
 
-// Функция печати элемента int*.
-void print_p_int(void *const _data)
+int main(int agrc, char **argv)
 {
-    if (_data == NULL)
+    size_t error;
+    c_vector *vector;
+
+    // Пытаемся создать вектор емкостью CAPACITY, который содержит объекты типа object.
+    vector = c_vector_create(sizeof(object), CAPACITY, &error);
+
+    // Если вектор создать не удалось, выводим причину ошибки.
+    if (vector == NULL)
     {
-        return;
+        printf("error: %Iu\n", error);
+        printf("Program end.\n");
+        getchar();
+        return -1;
     }
 
-    const int *const *const p_int = (const int *const *const)_data;
-
-    printf("address: %p value: %i\n", *p_int, **p_int);
-
-    return;
-}
-
-// Функция специального удаления для элемента типа int*.
-void del_p_int(void *const _data)
-{
-    if (_data == NULL)
+    // Вставляем в конец вектора 11 объектов.
+    for (size_t i = 0; i < 11; ++i)
     {
-        return;
+        object *const obj = c_vector_push_back(vector, &error);
+        // Если вставить объект не удалось, выводим причину ошибки.
+        if (obj == NULL)
+        {
+            printf("error: %Iu\n", error);
+            printf("Proogram end.\n");
+            getchar();
+            return -2;
+        }
+
+        // Инициализируем вставленный объект.
+        obj->i = i;
+        obj->f = i + 3.14f;
     }
 
-    int *const *const p_int = (int *const *const)_data;
-    free(*p_int);
+    // Покажем размер вектора.
+    {
+        error = 0;
+        const size_t size = c_vector_size(vector, &error);
+        // Если size == 0 и error > 0, значит возникла ошибка.
+        if ( (size == 0) && (error > 0) )
+        {
+            printf("error: %Iu\n", error);
+            printf("Program end.\n");
+            getchar();
+            return -3;
+        }
+        // Покажем размер.
+        printf("size: %Iu\n", size);
+    }
 
-    return;
+    // Покажем емкость вектора.
+    {
+        error = 0;
+        const size_t capacity = c_vector_capacity(vector, &error);
+        // Если capacity == 0 и error > 0, значит произошла ошибка.
+        if ( (capacity == 0) && (error > 0) )
+        {
+            printf("error: %Iu\n", error);
+            printf("Program end.\n");
+            getchar();
+            return -4;
+        }
+        // Покажем емкость.
+        printf("capacity: %Iu\n", capacity);
+    }
+
+    // Используя функцию обхода, выведем содержимое каждого элемента вектора.
+    {
+        const ptrdiff_t r_code = c_vector_for_each(vector, print_object);
+        // Если произошла ошибка, покажем ее.
+        if (r_code < 0)
+        {
+            printf("r_code: %Id\n", r_code);
+            printf("Program end.\n");
+            getchar();
+            return -5;
+        }
+    }
+
+    // Удалим из вектора несколько элементов, используя массив индексов.
+    {
+        const size_t indexes_count = 5;
+        size_t indexes[5] = {0, 2, 1, 3, 99};
+
+        error = 0;
+        // Специализированная функция для удаления объекта типа object не нужна.
+        const size_t d_count = c_vector_erase_few(vector, indexes, indexes_count, NULL, &error);
+        // Если произошла ошибка, покажем ее.
+        if ( (d_count == 0) && (error > 0) )
+        {
+            printf("error: %Iu\n", error);
+            printf("Program end.\n");
+            getchar();
+            return -6;
+        }
+        // Покажем, сколько элементов было удалено.
+        printf("d_count: %Iu\n", d_count);
+    }
+
+    // Используя функцию обхода, выведем содержимое каждого элемента вектора.
+    {
+        const ptrdiff_t r_code = c_vector_for_each(vector, print_object);
+        // Если произошла ошибка, покажем ее.
+        if (r_code < 0)
+        {
+            printf("r_code: %Id\n", r_code);
+            printf("Program end.\n");
+            getchar();
+            return -5;
+        }
+    }
+
+    // Удалим из вектора все элементы, f которых > 9.
+    {
+        error = 0;
+        const size_t d_count = c_vector_remove_few(vector, pred_object, NULL, &error);
+        // Если произошла ошибка, покажем ее.
+        if ( (d_count == 0) && (error > 0) )
+        {
+            printf("error: %Iu\n", error);
+            printf("Program end.\n");
+            getchar();
+            return -6;
+        }
+        // Покажем, сколько элементов было удалено.
+        printf("d_count: %Iu\n", d_count);
+    }
+
+    // Используя функцию обхода, выведем содержимое каждого элемента вектора.
+    {
+        const ptrdiff_t r_code = c_vector_for_each(vector, print_object);
+        // Если произошла ошибка, покажем ее.
+        if (r_code < 0)
+        {
+            printf("r_code: %Id\n", r_code);
+            printf("Program end.\n");
+            getchar();
+            return -5;
+        }
+    }
+
+    // Удалим вектор.
+    {
+        const ptrdiff_t r_code = c_vector_delete(vector, NULL);
+        // Если возникла ошибка, покажем ее.
+        if (r_code < 0)
+        {
+            printf("r_code: %Id\n", r_code);
+            printf("Program end.\n");
+            getchar();
+            return -6;
+        }
+    }
+
+    getchar();
+    return 0;
 }
