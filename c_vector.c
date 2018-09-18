@@ -45,10 +45,10 @@ static int comp_sort(const void *const _index_a,
     {
         return 0;
     }
-    
+
     const size_t index_a = *((size_t*)_index_a);
     const size_t index_b = *((size_t*)_index_b);
-    
+
     if (index_a > index_b)
     {
         return 1;
@@ -127,7 +127,7 @@ ptrdiff_t c_vector_delete(c_vector *const _vector,
 }
 
 // Добавляет элемент в конец вектора.
-// В случае успеха возвращает указатель на неинициализированные данные.
+// В случае успеха возвращает указатель на добавленный неинициализированный элемент.
 // В случае ошибки возвращает NULL, и если _error != NULL, в заданное расположение
 // помещается код причины ошибки (> 0).
 void *c_vector_push_back(c_vector *const _vector,
@@ -178,10 +178,13 @@ void *c_vector_push_back(c_vector *const _vector,
     return (uint8_t*)_vector->data + (_vector->size - 1) * _vector->size_of_element;
 }
 
-// Добавляет неинициализированный элемент в произвольную позицию вектора [0; +size].
-// В случае успеха возвращает указатель на вставленный неинициализированные данные.
+// Добавляет элемент в произвольную позицию вектора [0; +size].
+// В случае успеха возвращает указатель на добавленный неинициализированный элемент.
 // В случае ошибки возвращает NULL, и если _error != NULL, в заданное расположение
 // помещается код причины ошибки (> 0).
+// Вставка в позицию > size запрещена, это не считается ошибкой, функция вернет NULL.
+// Так как функция может возвращать NULL и в случае успеха, и в случае ошибки, для детектирования
+// ошибки перед вызовом функции необходимо поместить 0 в расположение ошибки.
 void *c_vector_insert(c_vector *const _vector,
                       const size_t _index,
                       size_t *const _error)
@@ -193,7 +196,6 @@ void *c_vector_insert(c_vector *const _vector,
     }
     if (_index > _vector->size)
     {
-        error_set(_error, 2);
         return NULL;
     }
     if (_vector->size == _vector->capacity)
@@ -202,13 +204,13 @@ void *c_vector_insert(c_vector *const _vector,
         size_t new_capacity = (size_t)(_vector->capacity * 1.5f);
         if (new_capacity < _vector->capacity)
         {
-            error_set(_error, 3);
+            error_set(_error, 2);
             return NULL;
         }
         new_capacity += 1;
         if (new_capacity == 0)
         {
-            error_set(_error, 4);
+            error_set(_error, 3);
             return NULL;
         }
         // Определим новый размер data.
@@ -216,7 +218,7 @@ void *c_vector_insert(c_vector *const _vector,
         if ( (new_data_size == 0) ||
              (new_data_size / new_capacity != _vector->size_of_element) )
         {
-            error_set(_error, 5);
+            error_set(_error, 4);
             return NULL;
         }
 
@@ -224,7 +226,7 @@ void *c_vector_insert(c_vector *const _vector,
         void *const new_data = malloc(new_data_size);
         if (new_data == NULL)
         {
-            error_set(_error, 6);
+            error_set(_error, 5);
             return NULL;
         }
         if (_vector->size > 0)
@@ -286,8 +288,11 @@ void *c_vector_insert(c_vector *const _vector,
 }
 
 // Возвращает указатель на последний элемент вектора.
+// Если вектор пуст, возвращает NULL.
 // В случае ошибки возвращает NULL, и если _error != NULL, в заданное расположение
 // помещается код причины ошибки (> 0).
+// Так как функция может возвращать NULL и в случае успеха, и в случае ошибки, для детектирования
+// ошибки перед вызовом функции необходимо поместить 0 в заданное расположение ошибки.
 void *c_vector_back(const c_vector *const _vector,
                     size_t *const _error)
 {
@@ -298,15 +303,17 @@ void *c_vector_back(const c_vector *const _vector,
     }
     if (_vector->size == 0)
     {
-        error_set(_error, 2);
         return NULL;
     }
     return (uint8_t*)_vector->data + (_vector->size - 1) * _vector->size_of_element;
 }
 
 // Возвращает указатель на первый элемент вектора.
+// Если вектор пуст, возвращает NULL.
 // В случае ошибки возвращает NULL, и если _error != NULL, в заданное расположение
 // помещается код причины ошибки (> 0).
+// Так как функция может возвращать NULL и в случае успеха, и в случае ошибки, для детектирования
+// ошибки перед вызовом функции необходимо поместить 0 в заданное расположение ошибки.
 void *c_vector_front(const c_vector *const _vector,
                      size_t *const _error)
 {
@@ -317,15 +324,17 @@ void *c_vector_front(const c_vector *const _vector,
     }
     if (_vector->size == 0)
     {
-        error_set(_error, 2);
         return NULL;
     }
     return _vector->data;
 }
 
 // Возвращает указатель на элемент с заданным индексом.
+// Если индекс оказался >= размеру вектора, функция возвращает NULL, это не считается ошибкой.
 // В случае ошибки возвращает NULL, и если _error != NULL, в заданное расположение
 // помещается код причины ошибки (> 0).
+// Так как функция может возвращать NULL и в случае успеха, и в случае ошибки, для детектирования
+// ошибки перед вызовом функции необходимо поместить 0 в заданное расположение ошибки.
 void *c_vector_at(const c_vector *const _vector,
                   const size_t _index,
                   size_t *const _error)
@@ -337,14 +346,13 @@ void *c_vector_at(const c_vector *const _vector,
     }
     if (_index >= _vector->size)
     {
-        error_set(_error, 2);
         return NULL;
     }
     return (uint8_t*)_vector->data + _index * _vector->size_of_element;
 }
 
 // Вставляет неинициализированный элемент в начало вектора.
-// В случае успеха возвращает указатель на неинициализированные данные.
+// В случае успеха возвращает указатель на неинициализированный элемент.
 // В случае ошибки возвращает NULL, и если _error != NULL, в заданное расположение
 // помещается код причины ошибки (> 0).
 void *c_vector_push_front(c_vector *const _vector,
@@ -448,13 +456,14 @@ ptrdiff_t c_vector_pop_front(c_vector *const _vector,
 
 // Удаляет элемент с заданным индексом.
 // Если элемент был удален, возвращает > 0.
+// Если индекс >= size, возвращает 0.
 // В случае ошибки возвращает < 0.
 ptrdiff_t c_vector_erase(c_vector *const _vector,
                          const size_t _index,
                          void (*_del_data)(void * const _data))
 {
     if (_vector == NULL) return -1;
-    if (_index >= _vector->size) return -2;
+    if (_index >= _vector->size) return 0;
     if (_del_data != NULL)
     {
         _del_data( (uint8_t*)_vector->data + _index * _vector->size_of_element );
@@ -483,13 +492,13 @@ ptrdiff_t c_vector_erase(c_vector *const _vector,
     return 1;
 }
 
-// Удаление нескольких узлов с заданными индексами.
-// В случае успеха возвращает кол-во удаленных узлов.
+// Удаление нескольких елементов с заданными индексами.
+// В случае успеха возвращает кол-во удаленных элементов.
 // В случае ошибки возвращает 0, и если _error != NULL, в заданное расположение помещается
 // код причины ошибки (> 0).
 // Так как функция может возвращать 0 и в случае успеха, и в случае ошибки, для детектирования ошибки
 // перед вызовом функции необходимо поместить 0 в заданное расположение ошибки.
-// Если какой-либо индекс >= _vector->size - это не считается сбоем.
+// Если какой-либо индекс >= _vector->size - это не считается ошибкой.
 // Функция сортирует массив, на который указывает _indexes, а так же избавляется от одинаковых индексов.
 size_t c_vector_erase_few(c_vector *const _vector,
                           size_t *const _indexes,
