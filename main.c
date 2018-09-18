@@ -151,7 +151,7 @@ int main(int agrc, char **argv)
             printf("r_code: %Id\n", r_code);
             printf("Program end.\n");
             getchar();
-            return -5;
+            return -7;
         }
     }
 
@@ -165,7 +165,7 @@ int main(int agrc, char **argv)
             printf("error: %Iu\n", error);
             printf("Program end.\n");
             getchar();
-            return -6;
+            return -8;
         }
         // Покажем, сколько элементов было удалено.
         printf("d_count: %Iu\n", d_count);
@@ -180,7 +180,7 @@ int main(int agrc, char **argv)
             printf("r_code: %Id\n", r_code);
             printf("Program end.\n");
             getchar();
-            return -5;
+            return -9;
         }
     }
 
@@ -193,7 +193,7 @@ int main(int agrc, char **argv)
             printf("r_code: %Id\n", r_code);
             printf("Program end.\n");
             getchar();
-            return -6;
+            return -10;
         }
     }
 
