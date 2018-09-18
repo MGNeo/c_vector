@@ -41,8 +41,14 @@ static void error_set(size_t *const _error,
 static int comp_sort(const void *const _index_a,
                      const void *const _index_b)
 {
+    if ( (_index_a == NULL) || (_index_b == NULL) )
+    {
+        return 0;
+    }
+    
     const size_t index_a = *((size_t*)_index_a);
     const size_t index_b = *((size_t*)_index_b);
+    
     if (index_a > index_b)
     {
         return 1;
