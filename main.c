@@ -54,7 +54,7 @@ int main(int agrc, char **argv)
     // Если вектор создать не удалось, выводим причину ошибки.
     if (vector == NULL)
     {
-        printf("error: %Iu\n", error);
+        printf("create error: %Iu\n", error);
         printf("Program end.\n");
         getchar();
         return -1;
@@ -67,7 +67,7 @@ int main(int agrc, char **argv)
         // Если вставить объект не удалось, выводим причину ошибки.
         if (obj == NULL)
         {
-            printf("error: %Iu\n", error);
+            printf("push back error: %Iu\n", error);
             printf("Proogram end.\n");
             getchar();
             return -2;
@@ -85,7 +85,7 @@ int main(int agrc, char **argv)
         // Если size == 0 и error > 0, значит возникла ошибка.
         if ( (size == 0) && (error > 0) )
         {
-            printf("error: %Iu\n", error);
+            printf("size error: %Iu\n", error);
             printf("Program end.\n");
             getchar();
             return -3;
@@ -101,7 +101,7 @@ int main(int agrc, char **argv)
         // Если capacity == 0 и error > 0, значит произошла ошибка.
         if ( (capacity == 0) && (error > 0) )
         {
-            printf("error: %Iu\n", error);
+            printf("capacity error: %Iu\n", error);
             printf("Program end.\n");
             getchar();
             return -4;
@@ -116,7 +116,7 @@ int main(int agrc, char **argv)
         // Если произошла ошибка, покажем ее.
         if (r_code < 0)
         {
-            printf("r_code: %Id\n", r_code);
+            printf("for each error, r_code: %Id\n", r_code);
             printf("Program end.\n");
             getchar();
             return -5;
@@ -132,7 +132,7 @@ int main(int agrc, char **argv)
         // Если произошла ошибка, покажем ее.
         if ( (d_count == 0) && (error > 0) )
         {
-            printf("error: %Iu\n", error);
+            printf("erase few error: %Iu\n", error);
             printf("Program end.\n");
             getchar();
             return -6;
@@ -147,7 +147,7 @@ int main(int agrc, char **argv)
         // Если произошла ошибка, покажем ее.
         if (r_code < 0)
         {
-            printf("r_code: %Id\n", r_code);
+            printf("for each error, r_code: %Id\n", r_code);
             printf("Program end.\n");
             getchar();
             return -7;
@@ -161,7 +161,7 @@ int main(int agrc, char **argv)
         // Если произошла ошибка, покажем ее.
         if ( (d_count == 0) && (error > 0) )
         {
-            printf("error: %Iu\n", error);
+            printf("remove few error: %Iu\n", error);
             printf("Program end.\n");
             getchar();
             return -8;
@@ -176,7 +176,7 @@ int main(int agrc, char **argv)
         // Если произошла ошибка, покажем ее.
         if (r_code < 0)
         {
-            printf("r_code: %Id\n", r_code);
+            printf("for each error, r_code: %Id\n", r_code);
             printf("Program end.\n");
             getchar();
             return -9;
@@ -189,7 +189,7 @@ int main(int agrc, char **argv)
         // Если возникла ошибка, покажем ее.
         if (r_code < 0)
         {
-            printf("r_code: %Id\n", r_code);
+            printf("delete error, r_code: %Id\n", r_code);
             printf("Program end.\n");
             getchar();
             return -10;
